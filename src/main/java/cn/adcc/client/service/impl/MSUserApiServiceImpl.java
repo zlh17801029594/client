@@ -34,7 +34,8 @@ public class MSUserApiServiceImpl implements MSUserApiService {
             msUserApiList.forEach(msUserApi -> {
                 MSUserApiDto msUserApiDto = new MSUserApiDto();
                 BeanUtils.copyProperties(msUserApi, msUserApiDto);
-                String username = msUserApi.getUsername();
+//                String username = msUserApi.getUsername();
+                String username = "admin";
                 List<MSUserApiDto> msUserApiDtoList = userApiListMap.get(username);
                 if (msUserApiDtoList == null) {
                     msUserApiDtoList = new ArrayList<>();
@@ -77,7 +78,7 @@ public class MSUserApiServiceImpl implements MSUserApiService {
                 if (msUserApi == null) {
                     msUserApi = new MSUserApi();
                     BeanUtils.copyProperties(msUserApiDto, msUserApi, BeanFindNullUtils.findNull(msUserApiDto));
-                    msUserApi.setUsername(username);
+//                    msUserApi.setUsername(username);
                     msUserApi.setApplyTime(new Timestamp(System.currentTimeMillis()));
                     msUserApi.setStatus(MSUserApiStatusEnum.APPROVE.getCode());
                     msUserApiRepository.save(msUserApi);

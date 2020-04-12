@@ -4,14 +4,12 @@ import lombok.Data;
 import org.hibernate.annotations.DynamicInsert;
 import org.hibernate.annotations.DynamicUpdate;
 
-import javax.persistence.Entity;
-import javax.persistence.GeneratedValue;
-import javax.persistence.GenerationType;
-import javax.persistence.Id;
+import javax.persistence.*;
 import java.util.Date;
 
 @Data
 @Entity
+@Table(name = "ms_api")
 @DynamicInsert
 @DynamicUpdate
 public class MSApi {
@@ -41,6 +39,4 @@ public class MSApi {
     private Integer sensitiveNum;
     /*接口全局状态*/
     private Integer status;
-    private Date createTime;
-    private Date updateTime;
 }

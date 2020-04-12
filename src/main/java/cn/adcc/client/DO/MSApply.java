@@ -1,31 +1,31 @@
 package cn.adcc.client.DO;
 
-
 import lombok.Data;
 import org.hibernate.annotations.DynamicInsert;
 import org.hibernate.annotations.DynamicUpdate;
 
 import javax.persistence.*;
+import java.util.ArrayList;
 import java.util.Date;
+import java.util.List;
 
 @Data
 @Entity
-@Table(name = "ms_user_api")
+@Table(name = "ms_apply")
 @DynamicInsert
 @DynamicUpdate
-public class MSUserApi {
-    /*id*/
+public class MSApply {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
-    /*用户表id*/
-    private Long msUserId;
-    /*api表id*/
-    private Long msApiId;
-    /*接口申请时间*/
+    /*申请用户名*/
+    private String username;
     private Date applyTime;
-    /*接口申请到期时间*/
     private Date expireTime;
-    /*用户接口关系状态*/
     private Integer status;
+    @OneToMany(cascade = CascadeType.MERGE)
+    @JoinTable(name = "ms_apply_details",
+            joinColumns = @JoinColumn(name = "ms_apply_id", referencedColumnName = "id"))
+    private List<MSApplyDetails> msApplyDetails = new ArrayList<>();
+
 }
