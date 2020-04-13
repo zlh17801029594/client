@@ -24,8 +24,7 @@ public class MSApply {
     private Date expireTime;
     private Integer status;
     @OneToMany(cascade = CascadeType.MERGE)
-    @JoinTable(name = "ms_apply_details",
-            joinColumns = @JoinColumn(name = "ms_apply_id", referencedColumnName = "id"))
+    @JoinTable(name = "ms_apply_id")
     private List<MSApplyDetails> msApplyDetails = new ArrayList<>();
 
 }

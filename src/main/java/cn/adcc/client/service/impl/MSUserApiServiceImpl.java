@@ -74,7 +74,8 @@ public class MSUserApiServiceImpl implements MSUserApiService {
             msUserApiDtos.forEach(msUserApiDto -> {
                 Long apiRef = msUserApiDto.getApiRef();
                 Date expiringTime = msUserApiDto.getExpiringTime();
-                MSUserApi msUserApi = msUserApiRepository.findMSUserApiByUsernameAndApiRef(username, apiRef);
+//                MSUserApi msUserApi = msUserApiRepository.findMSUserApiByUsernameAndApiRef(username, apiRef);
+                MSUserApi msUserApi = null;
                 if (msUserApi == null) {
                     msUserApi = new MSUserApi();
                     BeanUtils.copyProperties(msUserApiDto, msUserApi, BeanFindNullUtils.findNull(msUserApiDto));
