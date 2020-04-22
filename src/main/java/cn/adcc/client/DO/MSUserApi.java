@@ -29,7 +29,8 @@ public class MSUserApi {
     @JoinColumn(name = "ms_user_id")
     private MSUser msUser;
 
-    @WhereJoinTable(clause = "del_flag != 1")
+    /*表关联条件*/
+    //@WhereJoinTable(clause = "del_flag != 1")
     /*？REFRESH方式值得探究。*/
     /*, fetch = FetchType.LAZY 导致json转换失败，探究这种懒加载方式是否可行*/
     @ManyToOne(cascade = CascadeType.REFRESH)

@@ -16,7 +16,7 @@ import java.util.List;
 @CrossOrigin
 @RestController
 @RequestMapping("/api")
-public class MSApiController {
+public class MsApiController {
     @Autowired
     private MSApiService msApiService;
     @Autowired

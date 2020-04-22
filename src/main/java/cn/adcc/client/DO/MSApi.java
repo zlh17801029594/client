@@ -30,7 +30,7 @@ public class MSApi {
     /*所属关系*/
     private Long pid;
     /*上下位置排序关系*/
-    private Long orderNum;
+    private Integer orderNum;
     /*服务/接口名称*/
     private String name;
     /*服务/接口功能描述*/
@@ -49,8 +49,17 @@ public class MSApi {
     private Integer sensitiveNum;
     /*接口全局状态*/
     private Integer status;
+    /*伪删除字段*/
+    private Boolean delFlag;
 
     @JsonIgnore
     @OneToMany(mappedBy = "msApi", cascade = CascadeType.REMOVE)
     private Set<MSUserApi> msUserApis;
+
+    @JsonIgnore
+    @ManyToMany
+    @JoinTable(name = "ms_apply_api",
+            joinColumns = @JoinColumn(name = "ms_api_id"),
+            inverseJoinColumns = @JoinColumn(name = "ms_apply_id"))
+    private Set<MSApply> msApplies;
 }

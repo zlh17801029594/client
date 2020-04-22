@@ -24,7 +24,10 @@ public class MSUser {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
     private String username;
+    private Integer sensitiveNum;
     @OneToMany(mappedBy = "msUser", cascade = {CascadeType.PERSIST, CascadeType.MERGE, CascadeType.REMOVE})
     //@JoinColumn(name = "ms_user_id")
     private Set<MSUserApi> msUserApis = new HashSet<>();
+    @OneToMany(mappedBy = "msUser", cascade = {CascadeType.PERSIST, CascadeType.MERGE, CascadeType.REMOVE})
+    private Set<MSApply> msApplies;
 }

@@ -2,13 +2,11 @@ package cn.adcc.client.repository;
 
 import cn.adcc.client.ClientApplicationTests;
 import cn.adcc.client.DO.MSApply;
-import cn.adcc.client.DO.MSApplyDetails;
 import cn.adcc.client.DO.MSUser;
 import cn.adcc.client.DO.MSUserApi;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
-import org.springframework.transaction.annotation.Transactional;
 import org.springframework.util.Assert;
 
 import java.util.Date;
@@ -16,16 +14,12 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 
-import static org.junit.jupiter.api.Assertions.*;
-
 @Component
 class MSUserRepositoryTest extends ClientApplicationTests {
     @Autowired
     private MSUserRepository msUserRepository;
     @Autowired
     private MSApplyRepository msApplyRepository;
-    @Autowired
-    private MSApplyDetailsRepository msApplyDetailsRepository;
     @Autowired
     private MSApiRepository msApiRepository;
     @Autowired
@@ -110,21 +104,21 @@ class MSUserRepositoryTest extends ClientApplicationTests {
         msApply.setApplyTime(new Date());
         msApply.setExpireTime(new Date());
         msApply.setStatus(0);
-        Set<MSApplyDetails> msApplyDetailsSet = new HashSet<>();
+        /*Set<MSApplyDetails> msApplyDetailsSet = new HashSet<>();
         MSApplyDetails msApplyDetails = new MSApplyDetails();
         msApplyDetails.setMsApiUrl("/b");
         msApplyDetailsSet.add(msApplyDetails);
         msApplyDetails.setMsApply(msApply);
         msApply.setMsApplyDetails(msApplyDetailsSet);
-        msApplyRepository.save(msApply);
+        msApplyRepository.save(msApply);*/
     }
 
     @Test
     public void testMsApplyDetails() {
-        MSApplyDetails msApplyDetails = new MSApplyDetails();
+        /*MSApplyDetails msApplyDetails = new MSApplyDetails();
         msApplyDetails.setMsApiUrl("/c");
         msApplyDetails.setMsApply(msApplyRepository.getOne(1L));
-        msApplyDetailsRepository.save(msApplyDetails);
+        msApplyDetailsRepository.save(msApplyDetails);*/
     }
 
     @Test

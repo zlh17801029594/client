@@ -1,5 +1,6 @@
 package cn.adcc.client.DO;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import lombok.Data;
 import lombok.Getter;
 import lombok.Setter;
@@ -23,11 +24,17 @@ public class MSApply {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
-    /*申请用户名*/
-    private String username;
+    @JsonIgnore
+    @ManyToOne
+    @JoinColumn(name = "ms_user_id")
+    private MSUser msUser;
     private Date applyTime;
     private Date expireTime;
     private Integer status;
-    @OneToMany(cascade = CascadeType.PERSIST, mappedBy = "msApply")
-    private Set<MSApplyDetails> msApplyDetails;
+    private String reason;
+    @ManyToMany(cascade = CascadeType.MERGE)
+    @JoinTable(name = "ms_apply_api",
+            joinColumns = @JoinColumn(name = "ms_apply_id"),
+            inverseJoinColumns = @JoinColumn(name = "ms_api_id"))
+    private Set<MSApi> msApis;
 }
