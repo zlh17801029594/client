@@ -1,6 +1,8 @@
 package cn.adcc.client.service.impl;
 
 import cn.adcc.client.VO.User;
+import cn.adcc.client.enums.ResultEnum;
+import cn.adcc.client.exception.UserException;
 import cn.adcc.client.service.UserService;
 import cn.adcc.client.sso.Constant;
 import cn.adcc.client.sso.SsoUser;
@@ -20,7 +22,7 @@ public class UserServiceImpl implements UserService {
     public User getUserInfo() {
         SsoUser ssoUser = (SsoUser) request.getAttribute(Constant.SSO_USER);
         if (ssoUser == null) {
-            throw new RuntimeException("获取用户信息异常");
+            throw new UserException(ResultEnum.AUTHENTICATION_ERROR.getCode(), "获取用户信息异常");
         }
         List<String> roles = Arrays.asList(StringUtils.tokenizeToStringArray(ssoUser.getPermission(), ","));
         User user = new User(roles, "I am a super administrator", "https://wpimg.wallstcn.com/f778738c-e4f8-4870-b634-56703b4acafe.gif", ssoUser.getUsername());
@@ -31,7 +33,7 @@ public class UserServiceImpl implements UserService {
     public SsoUser getUser() {
         SsoUser ssoUser = (SsoUser) request.getAttribute(Constant.SSO_USER);
         if (ssoUser == null) {
-            throw new RuntimeException("获取用户信息异常！");
+            throw new UserException(ResultEnum.AUTHENTICATION_ERROR.getCode(), "获取用户信息异常！");
         }
         return ssoUser;
     }

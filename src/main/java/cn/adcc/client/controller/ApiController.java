@@ -13,16 +13,6 @@ import java.util.List;
 @CrossOrigin
 @RestController
 public class ApiController {
-    @Autowired
-    private MSApiService MSApiService;
-
-    @RequestMapping("/servicex")
-    public List<MSApiDto> servicex() throws Exception {
-        String url = "localhost:9005/api1?url=http://192.168.243.87:8080/v2/api-docs";
-        MSApiDto msApiDto = MSApiService.buildMSApiDto(url);
-        MSApiService.updateMSApi(Arrays.asList(msApiDto));
-        return MSApiService.findMSApi();
-    }
 
     @RequestMapping("/service")
     public String service() {

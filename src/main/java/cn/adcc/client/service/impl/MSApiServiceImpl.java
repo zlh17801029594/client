@@ -37,9 +37,8 @@ public class MSApiServiceImpl implements MSApiService {
     private MSApiRepository msApiRepository;
 
     @Override
-    public MSApiDto buildMSApiDto(String url) throws Exception {
+    public MSApiDto buildMSApiDto(SwaggerApiDoc swaggerApiDoc) {
         MSApiDto msApiDto = new MSApiDto();
-        SwaggerApiDoc swaggerApiDoc = swaggerApiDocService.getSwaggerApiDoc(url);
         if (swaggerApiDoc != null) {
             /*微服务基础信息*/
             Info info = swaggerApiDoc.getInfo();

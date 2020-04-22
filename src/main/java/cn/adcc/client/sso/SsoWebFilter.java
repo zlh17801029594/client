@@ -1,5 +1,6 @@
 package cn.adcc.client.sso;
 
+import cn.adcc.client.enums.ResultEnum;
 import cn.adcc.client.utils.ResultUtil;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import org.slf4j.Logger;
@@ -68,11 +69,11 @@ public class SsoWebFilter extends HttpServlet implements Filter {
             /*扩展请求头携带sessionid*/
             String sessionid = req.getHeader(Constant.SSO_SESSIONID);
             if (sessionid == null) {
-                sessionid = request.getParameter(Constant.SSO_SESSIONID);
+                sessionid = req.getParameter(Constant.SSO_SESSIONID);
             }
             if (SsoUtils.isEmpty(sessionid)) {
                 res.setContentType("application/json;charset=UTF-8");
-                res.getWriter().write(objectMapper.writeValueAsString(ResultUtil.error(500, "请求中未携带sessionid，请登录")));
+                res.getWriter().write(objectMapper.writeValueAsString(ResultUtil.error(ResultEnum.AUTHENTICATION_ERROR.getCode(), "请求中未携带sessionid，请登录")));
                 return;
             }
             try {
@@ -85,14 +86,14 @@ public class SsoWebFilter extends HttpServlet implements Filter {
             } catch (Exception e) {
                 logger.error("exception in loginCheck", e);
                 res.setContentType("application/json;charset=UTF-8");
-                res.getWriter().write(objectMapper.writeValueAsString(ResultUtil.error(-1, "认证服务器异常，请稍后重试")));
+                res.getWriter().write(objectMapper.writeValueAsString(ResultUtil.error(ResultEnum.LOGIN_SERVER_ERROR.getCode(), "认证服务器异常，请稍后重试")));
                 return;
             }
 
             // valid login fail
             if (ssoUser == null) {
                 res.setContentType("application/json;charset=UTF-8");
-                res.getWriter().write(objectMapper.writeValueAsString(ResultUtil.error(501, "sessionid已失效,请重新登录")));
+                res.getWriter().write(objectMapper.writeValueAsString(ResultUtil.error(ResultEnum.AUTHENTICATION_ERROR.getCode(), "sessionid无效,请重新登录")));
                 return;
             }
 

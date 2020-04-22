@@ -2,12 +2,13 @@ package cn.adcc.client.service;
 
 
 import cn.adcc.client.DTO.MSApiDto;
+import cn.adcc.client.DTOImport.SwaggerApiDoc;
 
 import java.util.List;
 
 public interface MSApiService {
 
-    MSApiDto buildMSApiDto(String url) throws Exception;
+    MSApiDto buildMSApiDto(SwaggerApiDoc swaggerApiDoc);
 
     /*获取后台接口信息并进行维护*/
     //考虑添加统计信息，统计当前新增接口、及弃用接口数

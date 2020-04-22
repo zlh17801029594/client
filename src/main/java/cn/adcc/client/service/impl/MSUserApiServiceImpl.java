@@ -1,11 +1,13 @@
 package cn.adcc.client.service.impl;
 
+import cn.adcc.client.DO.MSUser;
 import cn.adcc.client.DO.MSUserApi;
 import cn.adcc.client.DTO.MSUserApiDto;
 import cn.adcc.client.enums.MSApiStatusEnum;
 import cn.adcc.client.enums.MSUserApiStatusEnum;
 import cn.adcc.client.exception.MSUserApiException;
 import cn.adcc.client.repository.MSUserApiRepository;
+import cn.adcc.client.repository.MSUserRepository;
 import cn.adcc.client.service.MSUserApiService;
 import cn.adcc.client.service.UserService;
 import cn.adcc.client.utils.BeanFindNullUtils;
@@ -24,6 +26,9 @@ public class MSUserApiServiceImpl implements MSUserApiService {
 
     @Autowired
     private MSUserApiRepository msUserApiRepository;
+
+    @Autowired
+    private MSUserRepository msUserRepository;
 
     @Override
     public List<MSUserApiDto> findAllMSUserAPi() {
@@ -81,17 +86,17 @@ public class MSUserApiServiceImpl implements MSUserApiService {
                     BeanUtils.copyProperties(msUserApiDto, msUserApi, BeanFindNullUtils.findNull(msUserApiDto));
 //                    msUserApi.setUsername(username);
                     msUserApi.setApplyTime(new Timestamp(System.currentTimeMillis()));
-                    msUserApi.setStatus(MSUserApiStatusEnum.APPROVE.getCode());
+                    //msUserApi.setStatus(MSUserApiStatusEnum.APPROVE.getCode());
                     msUserApiRepository.save(msUserApi);
                 } else {
-                    if (MSUserApiStatusEnum.DENY.getCode().equals(msUserApi.getStatus())) {
+                    /*if (MSUserApiStatusEnum.DENY.getCode().equals(msUserApi.getStatus())) {
                         BeanUtils.copyProperties(msUserApiDto, msUserApi, BeanFindNullUtils.findNull(msUserApiDto));
                         msUserApi.setApplyTime(new Timestamp(System.currentTimeMillis()));
                         msUserApi.setStatus(MSUserApiStatusEnum.APPROVE.getCode());
                         msUserApiRepository.save(msUserApi);
                     } else {
                         throw new MSUserApiException(0, "数据操作异常、刷新后再试");
-                    }
+                    }*/
                 }
             });
         }
@@ -102,5 +107,11 @@ public class MSUserApiServiceImpl implements MSUserApiService {
     @Override
     public List<MSUserApiDto> findMSUserApi() {
         return null;
+    }
+
+    @Override
+    public MSUser findMSUserByUsername(String username) {
+        MSUser msUser = msUserRepository.findMSUserByUsername(username);
+        return msUser;
     }
 }

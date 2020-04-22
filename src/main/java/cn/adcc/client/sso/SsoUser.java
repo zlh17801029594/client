@@ -3,11 +3,6 @@ package cn.adcc.client.sso;
 import java.io.Serializable;
 import java.util.Map;
 
-/**
- * xxl sso user
- *
- * @author xuxueli 2018-04-02 19:59:49
- */
 public class SsoUser implements Serializable {
     private static final long serialVersionUID = 42L;
 
@@ -23,8 +18,11 @@ public class SsoUser implements Serializable {
     private long expireFreshTime;
 
     private int status;
+    private int sensitiveLevel;
 
-    // setCookie get
+
+
+    // set get
     public String getUserid() {
         return userid;
     }
@@ -95,5 +93,13 @@ public class SsoUser implements Serializable {
 
     public void setStatus(int status) {
         this.status = status;
+    }
+
+    public int getSensitiveLevel() {
+        return sensitiveLevel;
+    }
+
+    public void setSensitiveLevel(int sensitiveLevel) {
+        this.sensitiveLevel = sensitiveLevel;
     }
 }

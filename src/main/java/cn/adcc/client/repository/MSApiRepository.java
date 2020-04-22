@@ -22,6 +22,7 @@ public interface MSApiRepository extends JpaRepository<MSApi, Long> {
     /*查询所有指定接口*/
     List<MSApi> findMSApisByPidOrderByOrderNumDesc(Long pid);
 
-    /*查询所有敏感级别可见接口*/
+
+    /*查询出 状态为启用、铭感级别可见 的所有接口*/
     List<MSApi> findMSApisByPidAndStatusAndSensitiveNumLessThanEqualOrderByOrderNumDesc(Long pid, Integer status, Integer sensitiveNum);
 }

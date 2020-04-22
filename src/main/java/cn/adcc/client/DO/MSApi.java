@@ -1,15 +1,25 @@
 package cn.adcc.client.DO;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import lombok.Data;
+import lombok.Getter;
+import lombok.Setter;
 import org.hibernate.annotations.DynamicInsert;
 import org.hibernate.annotations.DynamicUpdate;
+import org.hibernate.annotations.SQLDelete;
+import org.hibernate.annotations.Where;
 
 import javax.persistence.*;
 import java.util.Date;
+import java.util.Set;
 
-@Data
+//@Data
+@Getter
+@Setter
 @Entity
 @Table(name = "ms_api")
+@SQLDelete(sql = "update ms_api set del_flag = 1 where id = ?")
+@Where(clause = "del_flag != 1")
 @DynamicInsert
 @DynamicUpdate
 public class MSApi {
@@ -39,4 +49,8 @@ public class MSApi {
     private Integer sensitiveNum;
     /*接口全局状态*/
     private Integer status;
+
+    @JsonIgnore
+    @OneToMany(mappedBy = "msApi", cascade = CascadeType.REMOVE)
+    private Set<MSUserApi> msUserApis;
 }

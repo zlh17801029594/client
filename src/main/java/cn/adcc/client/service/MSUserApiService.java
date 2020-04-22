@@ -1,5 +1,6 @@
 package cn.adcc.client.service;
 
+import cn.adcc.client.DO.MSUser;
 import cn.adcc.client.DTO.MSUserApiDto;
 
 import java.util.List;
@@ -16,4 +17,6 @@ public interface MSUserApiService {
 
     /*用户根据名字查询*/
     List<MSUserApiDto> findMSUserApi();
+
+    MSUser findMSUserByUsername(String username);
 }

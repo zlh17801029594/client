@@ -1,6 +1,8 @@
 package cn.adcc.client.DO;
 
 import lombok.Data;
+import lombok.Getter;
+import lombok.Setter;
 import org.hibernate.annotations.DynamicInsert;
 import org.hibernate.annotations.DynamicUpdate;
 
@@ -8,8 +10,11 @@ import javax.persistence.*;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
+import java.util.Set;
 
-@Data
+//@Data
+@Getter
+@Setter
 @Entity
 @Table(name = "ms_apply")
 @DynamicInsert
@@ -23,8 +28,6 @@ public class MSApply {
     private Date applyTime;
     private Date expireTime;
     private Integer status;
-    @OneToMany(cascade = CascadeType.MERGE)
-    @JoinTable(name = "ms_apply_id")
-    private List<MSApplyDetails> msApplyDetails = new ArrayList<>();
-
+    @OneToMany(cascade = CascadeType.PERSIST, mappedBy = "msApply")
+    private Set<MSApplyDetails> msApplyDetails;
 }
