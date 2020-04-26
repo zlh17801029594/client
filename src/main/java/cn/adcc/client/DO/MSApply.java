@@ -6,6 +6,7 @@ import lombok.Getter;
 import lombok.Setter;
 import org.hibernate.annotations.DynamicInsert;
 import org.hibernate.annotations.DynamicUpdate;
+import org.hibernate.annotations.Where;
 
 import javax.persistence.*;
 import java.util.ArrayList;
@@ -32,7 +33,9 @@ public class MSApply {
     private Date expireTime;
     private Integer status;
     private String reason;
-    @ManyToMany(cascade = CascadeType.MERGE)
+    /*表关联条件：有效*/
+    //@Where(clause = "del_flag != 1")
+    @ManyToMany//(mappedBy = "msApplies")
     @JoinTable(name = "ms_apply_api",
             joinColumns = @JoinColumn(name = "ms_apply_id"),
             inverseJoinColumns = @JoinColumn(name = "ms_api_id"))

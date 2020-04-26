@@ -50,7 +50,7 @@ class MSApiRepositoryTest extends ClientApplicationTests {
         msApi.setPid(0L);
         msApi.setName("航班信息服务");
         msApi.setUrl("/flightinfo");
-        msApi.setOrderNum(0L);
+        msApi.setOrderNum(0);
         msApi.setSensitiveNum(0);
 //        msApi.setHttpMethod("post");
         msApi.setDeprecated(false);
@@ -66,7 +66,7 @@ class MSApiRepositoryTest extends ClientApplicationTests {
         msApi.setPid(0L);
         msApi.setName("航班信息服务");
         msApi.setUrl("/flightinfo");
-        msApi.setOrderNum(0L);
+        msApi.setOrderNum(0);
         msApi.setSensitiveNum(1);
         msApi.setDeprecated(false);
         msApi.setStatus(MSApiStatusEnum.ON.getCode());

@@ -1,6 +1,7 @@
 package cn.adcc.client.repository;
 
 import cn.adcc.client.ClientApplicationTests;
+import cn.adcc.client.DO.MSApi;
 import cn.adcc.client.DO.MSApply;
 import cn.adcc.client.DO.MSUser;
 import cn.adcc.client.DO.MSUserApi;
@@ -58,7 +59,7 @@ class MSUserRepositoryTest extends ClientApplicationTests {
      * 3.有子表关联，子表元素不存在(通过人为添加的)，子表做插入操作
      */
     public void testInsertUpdate() {
-        MSUser msUser = msUserRepository.getOne(34L);
+        MSUser msUser = msUserRepository.findById(44L).get();
         Set<MSUserApi> msUserApis = new HashSet<>();
         /*一个新的未插入的就算插入，插入过的算更新*/
         /*MSUserApi msUserApi = new MSUserApi();
@@ -67,7 +68,7 @@ class MSUserRepositoryTest extends ClientApplicationTests {
         msUserApi.setApplyTime(new Date());
         msUserApi.setExpireTime(new Date());
         msUserApi.setStatus(0);*/
-        MSUserApi msUserApi = msUserApiRepository.getOne(15L);
+        MSUserApi msUserApi = msUserApiRepository.getOne(27L);
         msUserApis.add(msUserApi);
 //        msUser.setMsUserApis(null);
 //        msUser.setMsUserApis(new HashSet<>());
@@ -98,19 +99,103 @@ class MSUserRepositoryTest extends ClientApplicationTests {
     }
 
     @Test
+    public void testEmptyMsUser() {
+        MSUser msUser = msUserRepository.findById(44L).get();
+//        msUser.setMsUserApis(null);
+        msUser.setMsUserApis(new HashSet<>());
+        msUserRepository.save(msUser);
+    }
+
+    @Test
+    public void testEmptyMSUserApi() {
+        MSUserApi msUserApi = msUserApiRepository.findById(27L).get();
+        msUserApi.setMsUser(null);
+        msUserApiRepository.save(msUserApi);
+    }
+
+    @Test
+    public void testDelMsUser() {
+        MSUser msUser = msUserRepository.findById(48L).get();
+        msUserRepository.delete(msUser);
+    }
+
+
+    @Test
     public void testMsApply() {
+        MSUser msUser = msUserRepository.findMSUserByUsername("zhoulihuang");
         MSApply msApply = new MSApply();
-        msApply.setUsername("xiaozhou");
+        msApply.setMsUser(msUser);
         msApply.setApplyTime(new Date());
         msApply.setExpireTime(new Date());
         msApply.setStatus(0);
-        /*Set<MSApplyDetails> msApplyDetailsSet = new HashSet<>();
-        MSApplyDetails msApplyDetails = new MSApplyDetails();
-        msApplyDetails.setMsApiUrl("/b");
-        msApplyDetailsSet.add(msApplyDetails);
-        msApplyDetails.setMsApply(msApply);
-        msApply.setMsApplyDetails(msApplyDetailsSet);
-        msApplyRepository.save(msApply);*/
+        Set<MSApi> msApiSet = new HashSet<>();
+        MSApi msApi = msApiRepository.getOne(328L);
+        msApiSet.add(msApi);
+        msApi = msApiRepository.getOne(329L);
+        msApiSet.add(msApi);
+        msApply.setMsApis(msApiSet);
+        msApplyRepository.save(msApply);
+    }
+
+    @Test
+    public void testMSApplyDelete() {
+        msApplyRepository.deleteById(40L);
+    }
+
+    @Test
+    public void testMSApiDelete() {
+        msApiRepository.deleteById(329L);
+    }
+
+    @Test
+    public void testMSApplyJoin() {
+//        MSApply msApply = msApplyRepository.getOne(28L);
+        MSApply msApply1 = msApplyRepository.findById(34L).get();
+        System.out.println();
+    }
+
+    @Test
+    public void testMSUserApiJoin() {
+//        MSUserApi msUserApi = msUserApiRepository.getOne(2L);
+        MSUserApi msUserApi1 = msUserApiRepository.findById(32L).get();
+        System.out.println();
+    }
+
+    @Test
+    public void testMSUserJoin() {
+        MSUser msUser = msUserRepository.findMSUserByUsername("zhoulihuang");
+        System.out.println();
+    }
+
+    @Test
+    public void testMSApplyInsert() {
+        MSUser msUser = msUserRepository.findMSUserByUsername("zhoulihuang");
+        MSApply msApply = new MSApply();
+        msApply.setMsUser(msUser);
+        msApply.setApplyTime(new Date());
+        msApply.setExpireTime(new Date());
+        msApply.setStatus(0);
+        Set<MSApi> msApiSet = new HashSet<>();
+        MSApi msApi = msApiRepository.getOne(328L);
+        msApiSet.add(msApi);
+        /*msApi = msApiRepository.getOne(329L);
+        msApiSet.add(msApi);*/
+        msApply.setMsApis(msApiSet);
+        msApplyRepository.save(msApply);
+    }
+
+    @Test
+    public void testMSApplyEmpty() {
+        MSApply msApply = msApplyRepository.getOne(39L);
+        msApply.setMsApis(new HashSet<>());
+        msApplyRepository.save(msApply);
+    }
+
+    @Test
+    public void testMSApiEmpty() {
+        MSApi msApi = msApiRepository.getOne(328L);
+        msApi.setMsApplies(new HashSet<>());
+        msApiRepository.save(msApi);
     }
 
     @Test

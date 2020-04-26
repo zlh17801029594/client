@@ -19,7 +19,7 @@ import java.util.Set;
 @Entity
 @Table(name = "ms_api")
 @SQLDelete(sql = "update ms_api set del_flag = 1 where id = ?")
-@Where(clause = "del_flag != 1")
+//@Where(clause = "del_flag != 1")
 @DynamicInsert
 @DynamicUpdate
 public class MSApi {
@@ -57,7 +57,7 @@ public class MSApi {
     private Set<MSUserApi> msUserApis;
 
     @JsonIgnore
-    @ManyToMany
+    @ManyToMany//(mappedBy = "msApis")
     @JoinTable(name = "ms_apply_api",
             joinColumns = @JoinColumn(name = "ms_api_id"),
             inverseJoinColumns = @JoinColumn(name = "ms_apply_id"))

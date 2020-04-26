@@ -250,7 +250,7 @@ public class MSApiServiceImpl implements MSApiService {
                              * 1.orderNum,pid赋值
                              */
                             msApi = new MSApi();
-                            Long orderNum = 0L;
+                            int orderNum = 0;
                             MSApi msApiOrderNum = msApiRepository.findFirstByPidOrderByOrderNumDesc(pid);
                             if (msApiOrderNum != null && msApiOrderNum.getOrderNum() != null) {
                                 orderNum = msApiOrderNum.getOrderNum() + 1;

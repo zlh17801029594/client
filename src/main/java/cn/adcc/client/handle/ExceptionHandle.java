@@ -25,12 +25,13 @@ public class ExceptionHandle {
             return ResultUtil.error(((UserException) e).getCode(), e.getMessage());
         } else if (e instanceof SwaggerException) {
             return ResultUtil.error(((SwaggerException) e).getCode(), e.getMessage());
-        } else if (e instanceof MissingServletRequestParameterException) {
+        }/* else if (e instanceof MissingServletRequestParameterException) {
             return ResultUtil.error(0, e.getMessage());
         } else {
             e.printStackTrace();
             log.info(e.getMessage());
             return ResultUtil.error(-1, "未知错误");
-        }
+        }*/
+        throw e;
     }
 }

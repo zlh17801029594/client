@@ -3,7 +3,7 @@ sso:
   logout:
     path: /logout
   excluded:
-    paths: /**/*.css, /**/*.js, /**/*.png, /**/*.jpg,/static/**
+    paths: /**/*.css, /**/*.js, /**/*.png, /**/*.jpg,/static/**,/user/update
 server:
   port: 9005
 spring:
