@@ -25,6 +25,10 @@ public class RedisUtils {
         redisTemplate.opsForHash().putAll("api", map);
     }
 
+    public void addMap(String key, Map<String, Integer> maps) {
+        redisTemplate.opsForHash().putAll(key, maps);
+    }
+
     /*获取set所有元素*/
     /*空集合会返回 []*/
     public Set<String> getSet(String key) {

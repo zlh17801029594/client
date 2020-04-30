@@ -5,6 +5,8 @@ import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
+import java.util.HashMap;
+import java.util.Map;
 import java.util.Set;
 
 import static org.junit.jupiter.api.Assertions.*;
@@ -67,5 +69,15 @@ class RedisUtilsTest extends ClientApplicationTests {
         String[] adminPerms = new String[]{"/b"};
         boolean flag = redisUtils.delSet("admin", adminPerms);
         System.out.println(flag);
+    }
+
+    @Test
+    void addMap() {
+        Map<String, Integer> map = new HashMap<>();
+        map.put("/gateway/flightinfo/a1", 0);
+        map.put("/gateway/fdexm/a1", 1);
+        map.put("/gateway/flightinfo/b1", 2);
+        map.put("/gateway/fdexm/b1", 0);
+        redisUtils.addMap("api", map);
     }
 }

@@ -1,11 +1,13 @@
 package cn.adcc.client.controller;
 
 import cn.adcc.client.VO.LoginUser;
+import cn.adcc.client.VO.Result;
 import cn.adcc.client.enums.ResultEnum;
 import cn.adcc.client.exception.UserException;
 import cn.adcc.client.service.UserService;
 import cn.adcc.client.service.impl.UserServiceImpl;
 import cn.adcc.client.sso.Constant;
+import cn.adcc.client.utils.ResultUtil;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -34,8 +36,8 @@ public class UserController {
     private RestTemplate restTemplate;
 
     @RequestMapping("/info")
-    public Object userInfo(){
-        return userService.getUserInfo();
+    public Result userInfo(){
+        return ResultUtil.success(userService.getUserInfo());
     }
 
     /**

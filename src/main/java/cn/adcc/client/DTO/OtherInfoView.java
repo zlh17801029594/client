@@ -8,6 +8,7 @@ import java.util.List;
 import java.util.Map;
 
 @Data
+
 public class OtherInfoView {
     private List<String> consumes;
     private List<String> produces;

@@ -16,43 +16,26 @@ import java.util.List;
  */
 @CrossOrigin
 @RestController
-@RequestMapping("/permission")
+@RequestMapping("/user_api")
 public class MSUserApiController {
     @Autowired
     private MSUserApiService msUserApiService;
-    @Autowired
-    private UserService userService;
 
-    @GetMapping
-    public Result permissions() {
-        List<MSUserApiDto> msUserApiDtos = msUserApiService.findAllMSUserAPi();
-        return ResultUtil.success(msUserApiDtos);
+    @PostMapping("/on")
+    public Result turnOnUserApi(@RequestBody List<Long> ids) {
+        msUserApiService.onMSUserApi(ids);
+        return ResultUtil.success();
     }
 
-    @GetMapping("/user")
-    public Result permissionsByUser(){
-        /*获取用户名查询用户接口信息*/
-        /*用户申请处标识： 1.已启用、2.被停用、3.待审批*/
-        String username = userService.getUser().getUsername();
-        MSUser msUser = msUserApiService.findMSUserByUsername(username);
-        return ResultUtil.success(msUser);
+    @PostMapping("/off")
+    public Result turnOffUserApi(@RequestBody List<Long> ids) {
+        msUserApiService.offMSUserApi(ids);
+        return ResultUtil.success();
     }
 
-    @PostMapping("/apply")
-    public Result setApplyPermissions(@RequestBody List<MSUserApiDto> msUserApiDtos) {
-        msUserApiDtos = msUserApiService.apply(msUserApiDtos);
-        return ResultUtil.success(msUserApiDtos);
-    }
-
-    @PostMapping("/{userId}/on")
-    public void turnOnPermissions(@PathVariable("userId") Long userId, @RequestBody List<Long> ids) {
-        System.out.println(userId);
-        System.out.println(ids);
-    }
-
-    @PostMapping("/{userId}/off")
-    public void turnOffPermissions(@PathVariable("userId") Long userId, @RequestBody List<Long> ids) {
-        System.out.println(userId);
-        System.out.println(ids);
+    @PostMapping("/del")
+    public Result delUserApi(@RequestBody List<Long> ids) {
+        msUserApiService.delMSUserApi(ids);
+        return ResultUtil.success();
     }
 }

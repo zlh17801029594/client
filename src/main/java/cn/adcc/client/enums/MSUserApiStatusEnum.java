@@ -5,7 +5,7 @@ import lombok.Getter;
 @Getter
 public enum MSUserApiStatusEnum {
     /*后台任务管理*/
-    EXPIRE(0, "已过期"),
+    EXPIRE(-1, "已过期"),
     OFF(1, "已停用"),
     ON(2, "已启用"),
     ;

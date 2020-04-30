@@ -2,9 +2,11 @@ package cn.adcc.client.DO;
 
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
+import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import lombok.Data;
 import lombok.Getter;
 import lombok.Setter;
+import lombok.ToString;
 import org.hibernate.annotations.DynamicInsert;
 import org.hibernate.annotations.DynamicUpdate;
 import org.hibernate.annotations.Where;
@@ -15,6 +17,8 @@ import java.util.Date;
 //@Data
 @Getter
 @Setter
+@ToString(exclude = {"msUser", "msApi"})
+@JsonIgnoreProperties(value = {"msUser", "msApi"})
 @Entity
 @Table(name = "ms_user_api")
 @DynamicInsert
@@ -24,7 +28,6 @@ public class MSUserApi {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
-    @JsonIgnore
     @ManyToOne
     @JoinColumn(name = "ms_user_id")
     private MSUser msUser;

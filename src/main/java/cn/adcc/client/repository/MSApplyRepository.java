@@ -1,16 +1,19 @@
 package cn.adcc.client.repository;
 
+import cn.adcc.client.DO.MSApi;
 import cn.adcc.client.DO.MSApply;
 import cn.adcc.client.DO.MSUser;
 import org.springframework.data.jpa.repository.JpaRepository;
+import org.springframework.data.jpa.repository.JpaSpecificationExecutor;
 
+import java.util.Date;
 import java.util.List;
 
-public interface MSApplyRepository extends JpaRepository<MSApply, Long> {
+public interface MSApplyRepository extends JpaRepository<MSApply, Long>, JpaSpecificationExecutor<MSApply> {
     /*考虑排序*/
-    List<MSApply> findMSAppliesByOrderByApplyTime();
+    List<MSApply> findMSAppliesByOrderByApplyTimeDesc();
 
-    List<MSApply> findMSAppliesByMsUserOrderByApplyTime(MSUser msUser);
+    List<MSApply> findMSAppliesByMsUserOrderByApplyTimeDesc(MSUser msUser);
 
 
     /**
@@ -19,4 +22,16 @@ public interface MSApplyRepository extends JpaRepository<MSApply, Long> {
      * 待审批、已通过(未过期)所有接口 不可再次申请
      */
     List<MSApply> findMSAppliesByMsUserAndStatus(MSUser msUser, Integer status);
+
+    List<MSApply> findMSAppliesByMsApisInAndStatus(List<MSApi> msApplies, Integer status);
+
+    List<MSApply> findMSAppliesByMsUserInAndStatus(List<MSUser> msUsers, Integer status);
+
+    MSApply findMSApplyById(Long id);
+
+    List<MSApply> findMSAppliesByIdIn(List<Long> ids);
+
+    List<MSApply> findMSAppliesByStatusAndExpireTimeBefore(Integer status, Date nowTime);
+
+
 }

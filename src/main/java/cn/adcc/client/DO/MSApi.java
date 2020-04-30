@@ -1,9 +1,11 @@
 package cn.adcc.client.DO;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
+import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import lombok.Data;
 import lombok.Getter;
 import lombok.Setter;
+import lombok.ToString;
 import org.hibernate.annotations.DynamicInsert;
 import org.hibernate.annotations.DynamicUpdate;
 import org.hibernate.annotations.SQLDelete;
@@ -16,6 +18,8 @@ import java.util.Set;
 //@Data
 @Getter
 @Setter
+@ToString(exclude = {"msUserApis", "msApplies"})
+@JsonIgnoreProperties(value = {"msUserApis", "msApplies"})
 @Entity
 @Table(name = "ms_api")
 @SQLDelete(sql = "update ms_api set del_flag = 1 where id = ?")
@@ -52,11 +56,9 @@ public class MSApi {
     /*伪删除字段*/
     private Boolean delFlag;
 
-    @JsonIgnore
     @OneToMany(mappedBy = "msApi", cascade = CascadeType.REMOVE)
     private Set<MSUserApi> msUserApis;
 
-    @JsonIgnore
     @ManyToMany//(mappedBy = "msApis")
     @JoinTable(name = "ms_apply_api",
             joinColumns = @JoinColumn(name = "ms_api_id"),

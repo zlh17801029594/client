@@ -8,18 +8,16 @@ import java.util.Date;
 import java.util.List;
 
 @Data
-public class MSUserApiDto {
+public class MSApplyDto {
     private Long id;
     @JsonProperty("label")
-    private String apiName;
-    private String apiUrl;
-    private Integer apiStatus;
-    @JsonProperty("sensitive")
-    private Integer apiSensitiveNum;
-    private Long apiId;
+    private String username;
     @JsonFormat(pattern = "yyyy-MM-dd HH:mm:ss",timezone = "GMT+8")
     private Date applyTime;
     @JsonFormat(pattern = "yyyy-MM-dd HH:mm:ss",timezone = "GMT+8")
     private Date expireTime;
     private Integer status;
+    private String reason;
+    @JsonProperty("children")
+    private List<MSApiDto> msApiDtos;
 }

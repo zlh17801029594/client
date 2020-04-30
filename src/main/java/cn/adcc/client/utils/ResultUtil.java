@@ -12,7 +12,7 @@ public class ResultUtil {
 
     public static Result success() {
         Result result = new Result();
-        result.setCode(20000);
+        result.setCode(200);
         result.setMsg("成功");
         return result;
     }

@@ -1,8 +1,10 @@
 package cn.adcc.client.DO;
 
+import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import lombok.Data;
 import lombok.Getter;
 import lombok.Setter;
+import lombok.ToString;
 import org.hibernate.annotations.DynamicInsert;
 import org.hibernate.annotations.DynamicUpdate;
 
@@ -15,6 +17,8 @@ import java.util.Set;
 //@Data
 @Getter
 @Setter
+@ToString(exclude = {"msUserApis", "msApplies"})
+@JsonIgnoreProperties(value = {"msUserApis", "msApplies"})
 @Entity
 @Table(name = "ms_user")
 @DynamicInsert
@@ -27,7 +31,7 @@ public class MSUser {
     private Integer sensitiveNum;
     @OneToMany(mappedBy = "msUser", cascade = {CascadeType.REMOVE})
     //@JoinColumn(name = "ms_user_id")
-    private Set<MSUserApi> msUserApis = new HashSet<>();
+    private Set<MSUserApi> msUserApis;
     @OneToMany(mappedBy = "msUser", cascade = {CascadeType.REMOVE})
     private Set<MSApply> msApplies;
 }

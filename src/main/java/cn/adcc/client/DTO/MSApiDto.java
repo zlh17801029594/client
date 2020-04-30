@@ -38,5 +38,7 @@ public class MSApiDto {
     private Integer sensitiveNum;
     /*接口全局状态*/
     private Integer status;
+    /*用于用户申请判断*/
+    private Integer userApiStatus;
     private List<MSApiDto> children;
 }
