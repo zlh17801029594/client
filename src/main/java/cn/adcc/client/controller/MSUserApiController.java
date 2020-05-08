@@ -14,7 +14,6 @@ import java.util.List;
 /**
  * 用户接口关系维护
  */
-@CrossOrigin
 @RestController
 @RequestMapping("/user_api")
 public class MSUserApiController {

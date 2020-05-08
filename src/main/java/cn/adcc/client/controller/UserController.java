@@ -24,7 +24,6 @@ import java.net.URI;
 import java.net.URISyntaxException;
 import java.net.URLEncoder;
 
-@CrossOrigin
 @RestController
 @RequestMapping("/user")
 public class UserController {

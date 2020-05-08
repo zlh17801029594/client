@@ -73,7 +73,7 @@ public class CheckTask {
             callUpdateUsers();
             log.debug("[任务][同步用户信息] 结束");
         } catch (Exception e) {
-            //e.printStackTrace();
+            e.printStackTrace();
             log.error("[任务][同步用户信息] 异常, {}", e.getMessage());
         }
         try {
@@ -131,21 +131,22 @@ public class CheckTask {
     }
 
     protected void callUpdateUsers() {
+        List<SsoUser> ssoUsers;
         try {
             ResponseEntity<List<SsoUser>> responseEntity = restTemplate.exchange("http://192.168.204.67:8085/user/ssoUsers",
                     HttpMethod.GET, null,
                     new ParameterizedTypeReference<List<SsoUser>>() {});
-            List<SsoUser> ssoUsers = responseEntity.getBody();
-            /*用户敏感级别调整高了，还是低了，只有调低了才可能需要更新用户申请*/
-            //sql; select * from mu_user where username in ()
-            Map<Integer, List<MSUser>> updateMsUsers = msUserService.ssoUsers2MsUsersMap(ssoUsers);
-            if (EmptyUtils.isNotEmpty(updateMsUsers)) {
-                log.info("[任务][同步用户信息] 更新以下用户信息, {}", updateMsUsers);
-                //sql: update ms_user set sensitive_num = ? where username = ?
-                msUserService.updateMSUser(updateMsUsers);
-            }
+            ssoUsers = responseEntity.getBody();
         } catch (Exception e) {
             throw new RuntimeException("获取用户信息失败");
+        }
+        /*用户敏感级别调整高了，还是低了，只有调低了才可能需要更新用户申请*/
+        //sql; select * from mu_user where username in ()
+        Map<Integer, List<MSUser>> updateMsUsers = msUserService.ssoUsers2MsUsersMap(ssoUsers);
+        if (EmptyUtils.isNotEmpty(updateMsUsers)) {
+            log.info("[任务][同步用户信息] 更新以下用户信息, {}", updateMsUsers);
+            //sql: update ms_user set sensitive_num = ? where username = ?
+            msUserService.updateMSUser(updateMsUsers);
         }
     }
 

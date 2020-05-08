@@ -20,6 +20,8 @@ import cn.adcc.client.utils.ConvertUtils;
 import cn.adcc.client.utils.EmptyUtils;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
 import org.springframework.scheduling.annotation.Async;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -45,6 +47,11 @@ public class MSApplyServiceImpl implements MSApplyService {
     @Override
     public List<MSApply> findMSApplies() {
         return msApplyRepository.findMSAppliesByOrderByApplyTimeDesc();
+    }
+
+    public List<MSApply> findMSAppliesPage() {
+        Page<MSApply> msAppliesByOrderByApplyTimeDesc = msApplyRepository.findMSAppliesByOrderByApplyTimeDesc(PageRequest.of(1, 10));
+        return msAppliesByOrderByApplyTimeDesc.getContent();
     }
 
     @Override
@@ -139,6 +146,7 @@ public class MSApplyServiceImpl implements MSApplyService {
         msApplyRepository.save(msApply);
     }
 
+    /*审批删除接口*/
     @Transactional
     public void delApply(List<Long> ids) {
         List<MSApply> msApplies = msApplyRepository.findMSAppliesByIdIn(ids);

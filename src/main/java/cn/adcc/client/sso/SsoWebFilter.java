@@ -7,6 +7,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
+import org.springframework.web.cors.CorsConfiguration;
 
 import javax.servlet.*;
 import javax.servlet.http.HttpServlet;
@@ -43,6 +44,10 @@ public class SsoWebFilter extends HttpServlet implements Filter {
     public void doFilter(ServletRequest request, ServletResponse response, FilterChain chain) throws IOException, ServletException {
         HttpServletRequest req = (HttpServletRequest) request;
         HttpServletResponse res = (HttpServletResponse) response;
+        res.setHeader("Access-Control-Allow-Origin", CorsConfiguration.ALL);
+        res.setHeader("Access-Control-Allow-Methods", CorsConfiguration.ALL);
+        res.setHeader("Access-Control-Allow-Headers", CorsConfiguration.ALL);
+        res.setHeader("Access-Control-Max-Age", "3600");
 
         if (!req.getMethod().equalsIgnoreCase("OPTIONS")) {
 

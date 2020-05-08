@@ -14,6 +14,8 @@ public interface MSApplyService {
      */
     List<MSApply> findMSApplies();
 
+    List<MSApply> findMSAppliesPage();
+
     /**
      * 根据用户名获取当前用户所有申请并按申请时间倒序
      *

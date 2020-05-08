@@ -3,6 +3,8 @@ package cn.adcc.client.repository;
 import cn.adcc.client.DO.MSApi;
 import cn.adcc.client.DO.MSApply;
 import cn.adcc.client.DO.MSUser;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.JpaSpecificationExecutor;
 
@@ -12,6 +14,9 @@ import java.util.List;
 public interface MSApplyRepository extends JpaRepository<MSApply, Long>, JpaSpecificationExecutor<MSApply> {
     /*考虑排序*/
     List<MSApply> findMSAppliesByOrderByApplyTimeDesc();
+
+    /*简单分页*/
+    Page<MSApply> findMSAppliesByOrderByApplyTimeDesc(Pageable pageable);
 
     List<MSApply> findMSAppliesByMsUserOrderByApplyTimeDesc(MSUser msUser);
 

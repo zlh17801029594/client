@@ -13,6 +13,8 @@ public interface MSUserApiRepository extends JpaRepository<MSUserApi, Long> {
     /*获取当前用户所有用户接口关系*/
     List<MSUserApi> findMSUserApisByMsUser(MSUser msUser);
 
+    List<MSUserApi> findMSUserApisByMsUserOrderByApplyTimeDesc(MSUser msUser);
+
     /*查询用户启用/停用状态的已过期接口*/
     List<MSUserApi> findMSUserApisByStatusNotAndExpireTimeBefore(Integer status, Date nowTime);
 

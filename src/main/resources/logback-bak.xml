@@ -1,0 +1,140 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<configuration scan="true" scanPeriod="60 seconds" debug="false">
+    <property name="LOG_PATTERN" value="%d{yyyy-MM-dd HH:mm:ss.SSS} [%-5p] [%9t] [%-20c] - %m%n" />
+    <property name="FILE_PATH" value="./logs" />
+    <property name="DEBUG" value="debug" />
+    <property name="INFO" value="info" />
+    <property name="ERROR" value="error" />
+    <property name="MONITOR" value="data" />
+    <property name="SIZE" value="50MB" />
+
+    <appender name="console" class="ch.qos.logback.core.ConsoleAppender">
+        <encoder class="ch.qos.logback.classic.encoder.PatternLayoutEncoder">
+            <pattern>${LOG_PATTERN}</pattern>
+        </encoder>
+    </appender>
+
+    <appender name="debug" class="ch.qos.logback.core.rolling.RollingFileAppender">
+        <encoder class="ch.qos.logback.classic.encoder.PatternLayoutEncoder">
+            <pattern>${LOG_PATTERN}</pattern>
+        </encoder>
+        <file>${FILE_PATH}/${DEBUG}.log</file>
+        <rollingPolicy class="ch.qos.logback.core.rolling.FixedWindowRollingPolicy">
+            <fileNamePattern>${FILE_PATH}/${DEBUG}.%i.log</fileNamePattern>
+            <minIndex>1</minIndex>
+            <maxIndex>5</maxIndex>
+        </rollingPolicy>
+        <triggeringPolicy class="ch.qos.logback.core.rolling.SizeBasedTriggeringPolicy">
+            <maxFileSize>${SIZE}</maxFileSize>
+        </triggeringPolicy>
+    </appender>
+
+    <appender name="info" class="ch.qos.logback.core.rolling.RollingFileAppender">
+        <encoder class="ch.qos.logback.classic.encoder.PatternLayoutEncoder">
+            <pattern>${LOG_PATTERN}</pattern>
+        </encoder>
+        <filter class="ch.qos.logback.classic.filter.ThresholdFilter">
+            <level>INFO</level>
+        </filter>
+        <!--LevelFilter与ThresholdFilter有相似的作用，不必一起使用-->
+        <!--ThresholdFilter是保留当前等级以上的日志-->
+        <!--LevelFilter可以 过滤掉其他等级的日志保留当前等级/过滤掉当前等级的日志保留其他等级-->
+        <!--<filter class="ch.qos.logback.classic.filter.LevelFilter">
+            <level>INFO</level>
+            <onMatch>ACCEPT</onMatch>
+            <onMismatch>DENY</onMismatch>
+        </filter>-->
+
+        <file>${FILE_PATH}/${INFO}.log</file>
+        <rollingPolicy class="ch.qos.logback.core.rolling.FixedWindowRollingPolicy">
+            <fileNamePattern>${FILE_PATH}/${INFO}.%i.log</fileNamePattern>
+            <minIndex>1</minIndex>
+            <maxIndex>5</maxIndex>
+        </rollingPolicy>
+        <triggeringPolicy class="ch.qos.logback.core.rolling.SizeBasedTriggeringPolicy">
+            <maxFileSize>${SIZE}</maxFileSize>
+        </triggeringPolicy>
+
+        <!--按时间归档-->
+        <!--注意 1.maxHistory表示归档文件距离当前最大天数,超过了就会被清除-->
+        <!--
+        <file>${FILE_PATH}/${INFO}.log</file>
+        <rollingPolicy class="ch.qos.logback.core.rolling.TimeBasedRollingPolicy">
+            <fileNamePattern>${FILE_PATH}/${INFO}.%d{yyyy-MM-dd}.log</fileNamePattern>
+            <maxHistory>30</maxHistory>
+        </rollingPolicy>
+        -->
+
+        <!--按时间和文件大小归档-->
+        <!--注意 1.后缀：正序，2.maxHistory表示归档文件距离当前最大天数,超过了就会被清除-->
+        <!--
+        <file>${FILE_PATH}/${INFO}.log</file>
+        <rollingPolicy class="ch.qos.logback.core.rolling.SizeAndTimeBasedRollingPolicy">
+            <fileNamePattern>${FILE_PATH}/${INFO}.%d{yyyy-MM-dd}.%i.log</fileNamePattern>
+            <maxFileSize>1kb</maxFileSize>
+            <maxHistory>30</maxHistory>
+        </rollingPolicy>
+        -->
+
+        <!--按文件大小归档-->
+        <!--注意 1.后缀：倒序-->
+        <!--
+        <file>${FILE_PATH}/${INFO}.log</file>
+        <rollingPolicy class="ch.qos.logback.core.rolling.FixedWindowRollingPolicy">
+            <fileNamePattern>${FILE_PATH}/${INFO}.%i.log</fileNamePattern>
+            <minIndex>1</minIndex>
+            <maxIndex>5</maxIndex>
+        </rollingPolicy>
+        <triggeringPolicy class="ch.qos.logback.core.rolling.SizeBasedTriggeringPolicy">
+            <maxFileSize>50MB</maxFileSize>
+        </triggeringPolicy>
+        -->
+    </appender>
+
+    <appender name="error" class="ch.qos.logback.core.rolling.RollingFileAppender">
+        <encoder class="ch.qos.logback.classic.encoder.PatternLayoutEncoder">
+            <pattern>${LOG_PATTERN}</pattern>
+        </encoder>
+        <filter class="ch.qos.logback.classic.filter.ThresholdFilter">
+            <level>ERROR</level>
+        </filter>
+        <file>${FILE_PATH}/${ERROR}.log</file>
+        <rollingPolicy class="ch.qos.logback.core.rolling.FixedWindowRollingPolicy">
+            <fileNamePattern>${FILE_PATH}/${ERROR}.%i.log</fileNamePattern>
+            <minIndex>1</minIndex>
+            <maxIndex>5</maxIndex>
+        </rollingPolicy>
+        <triggeringPolicy class="ch.qos.logback.core.rolling.SizeBasedTriggeringPolicy">
+            <maxFileSize>${SIZE}</maxFileSize>
+        </triggeringPolicy>
+    </appender>
+
+    <appender name="monitor" class="ch.qos.logback.core.rolling.RollingFileAppender">
+        <encoder class="ch.qos.logback.classic.encoder.PatternLayoutEncoder">
+            <pattern>${LOG_PATTERN}</pattern>
+        </encoder>
+        <file>${FILE_PATH}/${MONITOR}.log</file>
+        <rollingPolicy class="ch.qos.logback.core.rolling.FixedWindowRollingPolicy">
+            <fileNamePattern>${FILE_PATH}/${MONITOR}.%i.log</fileNamePattern>
+            <minIndex>1</minIndex>
+            <maxIndex>5</maxIndex>
+        </rollingPolicy>
+        <triggeringPolicy class="ch.qos.logback.core.rolling.SizeBasedTriggeringPolicy">
+            <maxFileSize>${SIZE}</maxFileSize>
+        </triggeringPolicy>
+    </appender>
+
+    <root level="INFO">
+        <appender-ref ref="console" />
+    </root>
+    <logger name="cn.adcc.client" level="DEBUG" additivity="false">
+        <appender-ref ref="console" />
+        <appender-ref ref="debug" />
+        <appender-ref ref="info" />
+        <appender-ref ref="error" />
+    </logger>
+    <logger name="data" level="INFO" additivity="false">
+        <appender-ref ref="console" />
+        <!--<appender-ref ref="monitor" />-->
+    </logger>
+</configuration>

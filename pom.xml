@@ -16,6 +16,7 @@
 
 	<properties>
 		<java.version>1.8</java.version>
+		<skipTests>true</skipTests>
 	</properties>
 
 	<dependencies>
@@ -72,7 +73,38 @@
 			<groupId>org.springframework.boot</groupId>
 			<artifactId>spring-boot-starter-data-redis</artifactId>
 		</dependency>
+
+		<dependency>
+			<groupId>org.springframework.boot</groupId>
+			<artifactId>spring-boot-devtools</artifactId>
+		</dependency>
 	</dependencies>
+
+	<profiles>
+		<profile>
+			<id>prod</id>
+			<build>
+				<resources>
+					<!--打包配置文件到外部，前端代码放jar包-->
+					<resource>
+						<filtering>false</filtering>
+						<directory>src/main/resources</directory>
+						<includes>
+							<include>static/</include>
+						</includes>
+					</resource>
+					<!--打包 配置文件和前端代码 到外部-->
+					<!--<resource>
+                        <filtering>true</filtering>
+                        <directory>src/main/resources</directory>
+                        <excludes>
+                            <exclude>/</exclude>
+                        </excludes>
+                    </resource>-->
+				</resources>
+			</build>
+		</profile>
+	</profiles>
 
 	<build>
 		<plugins>

@@ -294,14 +294,27 @@ public class MSApiServiceImpl implements MSApiService {
                                 MSApiDto msApiDtoChildren = new MSApiDto();
                                 children.add(msApiDtoChildren);
                                 BeanUtils.copyProperties(api, msApiDtoChildren);
-                                if (api.getOtherInfo() != null) {
+                                /*if (api.getOtherInfo() != null) {
                                     msApiDtoChildren.setOtherInfoView(tranOtherInfo(api.getOtherInfo()));
-                                }
+                                }*/
                             });
                         }
                     });
         }
         return msApiDtoList;
+    }
+
+    @Override
+    public MSApiDto findMSApiById(Long id){
+        MSApi msApi = msApiRepository.findById(id).orElse(null);
+        MSApiDto msApiDto = new MSApiDto();
+        if (msApi != null) {
+            BeanUtils.copyProperties(msApi, msApiDto);
+            if (msApi.getOtherInfo() != null) {
+                msApiDto.setOtherInfoView(tranOtherInfo(msApi.getOtherInfo()));
+            }
+        }
+        return msApiDto;
     }
 
     @Override

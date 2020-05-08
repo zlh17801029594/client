@@ -16,14 +16,15 @@ import cn.adcc.client.sso.SsoUser;
 import cn.adcc.client.utils.ResultUtil;
 import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.util.StringUtils;
 import org.springframework.web.bind.annotation.*;
 
 import java.sql.Timestamp;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Date;
 import java.util.List;
 
-@CrossOrigin
 @RestController
 @RequestMapping("/apply")
 public class MSApplyController {
@@ -46,7 +47,14 @@ public class MSApplyController {
         /**
          * 1.查询所有申请并按申请时间倒序
          */
-        List<MSApply> msApplies = msApplyService.findMSApplies();
+        String permision = userService.getUser().getPermission();
+        List<String> roles = Arrays.asList(StringUtils.tokenizeToStringArray(permision, ","));
+        List<MSApply> msApplies;
+        if (roles.contains("SUPER_ADMIN") || roles.contains("ADMIN")) {
+            msApplies = msApplyService.findMSApplies();
+        } else {
+            msApplies = msApplyService.findMSAppliesByUsername(userService.getUser().getUsername());
+        }
         List<MSApplyDto> msApplyDtos = new ArrayList<>();
         msApplies.forEach(msApply -> {
             MSApplyDto msApplyDto = new MSApplyDto();
@@ -68,15 +76,15 @@ public class MSApplyController {
         /**
          * 1.查询所有申请并按申请时间倒序
          */
-        List<MSApply> msApplies = msApplyService.findMSApplies();
-        List<MSApplyDto> msApplyDtos = new ArrayList<>();
+        List<MSApply> msApplies = msApplyService.findMSAppliesPage();
+        /*List<MSApplyDto> msApplyDtos = new ArrayList<>();
         msApplies.forEach(msApply -> {
             MSApplyDto msApplyDto = new MSApplyDto();
             BeanUtils.copyProperties(msApply, msApplyDto);
             msApplyDto.setUsername(msApply.getMsUser().getUsername());
             msApplyDtos.add(msApplyDto);
-        });
-        return ResultUtil.success(msApplyDtos);
+        });*/
+        return ResultUtil.success(msApplies);
     }
 
     /**

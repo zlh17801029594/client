@@ -2,12 +2,14 @@ package cn.adcc.client.controller;
 
 
 import cn.adcc.client.DO.MSUser;
+import cn.adcc.client.DO.MSUserApi;
 import cn.adcc.client.DTO.MSUserApiDto;
 import cn.adcc.client.DTO.MSUserDto;
 import cn.adcc.client.VO.Result;
 import cn.adcc.client.enums.MSUserSensEnum;
 import cn.adcc.client.enums.ResultEnum;
 import cn.adcc.client.exception.UserException;
+import cn.adcc.client.repository.MSUserApiRepository;
 import cn.adcc.client.service.MSUserService;
 import cn.adcc.client.sso.SsoUser;
 import cn.adcc.client.utils.ResultUtil;
@@ -21,13 +23,15 @@ import java.util.*;
 /**
  * 用户管理(后期可能加入用户管理方面业务 eg：用户增加启停功能-用户层限制是否可使用微服务)
  */
-@CrossOrigin
 @RestController
 @RequestMapping("/user")
 public class MSUserController {
 
     @Autowired
     private MSUserService msUserService;
+
+    @Autowired
+    private MSUserApiRepository msUserApiRepository;
 
     /**
      * 获取全部用户(用于用户管理->用户接口管理)
@@ -45,9 +49,11 @@ public class MSUserController {
         msUsers.forEach(msUser -> {
             MSUserDto msUserDto = new MSUserDto();
             BeanUtils.copyProperties(msUser, msUserDto);
+            msUserDto.setId(0 - msUserDto.getId());
             List<MSUserApiDto> msUserApiDtos = new ArrayList<>();
             msUserDto.setMsUserApiDtos(msUserApiDtos);
-            msUser.getMsUserApis()
+            List<MSUserApi> msUserApis = msUserApiRepository.findMSUserApisByMsUserOrderByApplyTimeDesc(msUser);
+            msUserApis
                     .forEach(msUserApi -> {
                         MSUserApiDto msUserApiDto = new MSUserApiDto();
                         BeanUtils.copyProperties(msUserApi, msUserApiDto);

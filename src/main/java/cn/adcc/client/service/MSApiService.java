@@ -18,8 +18,11 @@ public interface MSApiService {
     //考虑添加统计信息，统计当前新增接口、及弃用接口数
     void updateMSApi(List<MSApiDto> msApiDtoLIst);
 
-    /*查询出所有接口数据*/
+    /*查询出所有接口数据（不包含接口otherInfo）*/
     List<MSApiDto> findAllMSApis();
+
+    /*单独查询接口详情接口（包含接口otherInfo）*/
+    MSApiDto findMSApiById(Long id);
 
     /*查询出所有已启用接口*/
     List<MSApiDto> findMSApisByStatusOn();
