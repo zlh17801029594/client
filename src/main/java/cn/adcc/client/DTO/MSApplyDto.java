@@ -18,6 +18,5 @@ public class MSApplyDto {
     private Date expireTime;
     private Integer status;
     private String reason;
-    @JsonProperty("children")
     private List<MSApiDto> msApiDtos;
 }

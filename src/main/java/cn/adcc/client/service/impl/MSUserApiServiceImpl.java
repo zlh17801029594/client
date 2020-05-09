@@ -95,9 +95,8 @@ public class MSUserApiServiceImpl implements MSUserApiService {
         redisService.updateRedisUserApi(ConvertUtils.convertUserUrls(msUserApis), false);
     }
 
-    @Override
     @Transactional
-    public void delMSUserApi(List<Long> ids) {
+    public void delMSUserApi_(List<Long> ids) {
         List<MSUserApi> msUserApis = msUserApiRepository.findMSUserApisByIdIn(ids);
         if (msUserApis.size() != ids.size()) {
             throw new BusinessException();
@@ -113,8 +112,9 @@ public class MSUserApiServiceImpl implements MSUserApiService {
 
     /*新的删除逻辑： 任意状态下的用户接口关系皆可删除*/
 
+    @Override
     @Transactional
-    public void delMSUserApi_(List<Long> ids) {
+    public void delMSUserApi(List<Long> ids) {
         List<MSUserApi> msUserApis = msUserApiRepository.findMSUserApisByIdIn(ids);
         if (msUserApis.size() != ids.size()) {
             throw new BusinessException();

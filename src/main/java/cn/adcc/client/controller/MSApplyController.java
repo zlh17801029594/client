@@ -153,4 +153,10 @@ public class MSApplyController {
         msApplyService.denyApply(id);
         return ResultUtil.success();
     }
+
+    @PostMapping("/del")
+    public Result delApply(@RequestBody List<Long> ids) {
+        msApplyService.delApply(ids);
+        return ResultUtil.success();
+    }
 }

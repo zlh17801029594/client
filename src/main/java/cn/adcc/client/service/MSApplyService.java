@@ -32,4 +32,7 @@ public interface MSApplyService {
 
     /*拒绝申请*/
     void denyApply(Long id);
+
+    /*删除申请*/
+    void delApply(List<Long> ids);
 }

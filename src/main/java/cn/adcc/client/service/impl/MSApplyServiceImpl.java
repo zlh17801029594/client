@@ -148,6 +148,7 @@ public class MSApplyServiceImpl implements MSApplyService {
 
     /*审批删除接口*/
     @Transactional
+    @Override
     public void delApply(List<Long> ids) {
         List<MSApply> msApplies = msApplyRepository.findMSAppliesByIdIn(ids);
         if (ids.size() != msApplies.size()) {
