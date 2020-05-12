@@ -16,6 +16,8 @@ public class Constant {
      */
     public static final String REDIRECT_URL = "redirect_url";
 
+    public static final String PATH = "path";
+
     /**
      * sso user, request attribute (web client)
      */

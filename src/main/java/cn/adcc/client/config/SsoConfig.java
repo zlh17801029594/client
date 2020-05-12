@@ -14,16 +14,16 @@ import org.springframework.context.annotation.Configuration;
 public class SsoConfig {
 
     @Value("${sso.server}")
-    private String ssoServer;
+    public String ssoServer;
 
     @Value("${sso.logout.path}")
-    private String ssoLogoutPath;
+    public String ssoLogoutPath;
 
     @Value("${sso.excluded.paths}")
-    private String ssoExcludedPaths;
+    public String ssoExcludedPaths;
 
     @Autowired
-    private SsoWebFilter ssoWebFilter;
+    public SsoWebFilter ssoWebFilter;
 
     @Bean
     public FilterRegistrationBean ssoFilterRegistration() {
