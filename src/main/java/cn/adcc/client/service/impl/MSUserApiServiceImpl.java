@@ -61,9 +61,12 @@ public class MSUserApiServiceImpl implements MSUserApiService {
             throw new BusinessException();
         }
         msUserApis.forEach(msUserApi -> {
-            if (!MSUserApiStatusEnum.OFF.getCode().equals(msUserApi.getStatus()) ||
+            /*if (!MSUserApiStatusEnum.OFF.getCode().equals(msUserApi.getStatus()) ||
                     !MSApiStatusEnum.ON.getCode().equals(msUserApi.getMsApi().getStatus()) ||
                     msUserApi.getMsApi().getSensitiveNum() > msUserApi.getMsUser().getSensitiveNum()) {
+                throw new BusinessException();
+            }*/
+            if (!MSUserApiStatusEnum.OFF.getCode().equals(msUserApi.getStatus())) {
                 throw new BusinessException();
             }
             msUserApi.setStatus(MSUserApiStatusEnum.ON.getCode());
@@ -82,9 +85,12 @@ public class MSUserApiServiceImpl implements MSUserApiService {
             throw new BusinessException();
         }
         msUserApis.forEach(msUserApi -> {
-            if (!MSUserApiStatusEnum.ON.getCode().equals(msUserApi.getStatus()) ||
+            /*if (!MSUserApiStatusEnum.ON.getCode().equals(msUserApi.getStatus()) ||
                     !MSApiStatusEnum.ON.getCode().equals(msUserApi.getMsApi().getStatus()) ||
                     msUserApi.getMsApi().getSensitiveNum() > msUserApi.getMsUser().getSensitiveNum()) {
+                throw new BusinessException();
+            }*/
+            if (!MSUserApiStatusEnum.ON.getCode().equals(msUserApi.getStatus())) {
                 throw new BusinessException();
             }
             msUserApi.setStatus(MSUserApiStatusEnum.OFF.getCode());
