@@ -5,6 +5,7 @@ import cn.adcc.client.DO.MSUser;
 import cn.adcc.client.DTO.MSApiDto;
 import cn.adcc.client.DTO.MSApplyDto;
 import cn.adcc.client.VO.ApplyDetails;
+import cn.adcc.client.VO.PageQuery;
 import cn.adcc.client.VO.Result;
 import cn.adcc.client.enums.ResultEnum;
 import cn.adcc.client.exception.MSApplyException;
@@ -16,14 +17,13 @@ import cn.adcc.client.sso.SsoUser;
 import cn.adcc.client.utils.ResultUtil;
 import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
 import org.springframework.util.StringUtils;
 import org.springframework.web.bind.annotation.*;
 
 import java.sql.Timestamp;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.Date;
-import java.util.List;
+import java.util.*;
 
 @RestController
 @RequestMapping("/apply")
@@ -42,20 +42,21 @@ public class MSApplyController {
      * 获取所有用户申请
      * @return
      */
-    @GetMapping("/all")
-    public Result getApplies() {
+    @PostMapping("/all")
+    public Result getApplies(@RequestBody PageQuery pageQuery) {
         /**
          * 1.查询所有申请并按申请时间倒序
          */
         String permision = userService.getUser().getPermission();
         List<String> roles = Arrays.asList(StringUtils.tokenizeToStringArray(permision, ","));
-        List<MSApply> msApplies;
+        Page<MSApply> msApplies;
         if (roles.contains("SUPER_ADMIN") || roles.contains("ADMIN")) {
-            msApplies = msApplyService.findMSApplies();
+            msApplies = msApplyService.findMSApplies(pageQuery);
         } else {
-            msApplies = msApplyService.findMSAppliesByUsername(userService.getUser().getUsername());
+            msApplies = null;
+//            msApplies = msApplyService.findMSAppliesByUsername(userService.getUser().getUsername());
         }
-        List<MSApplyDto> msApplyDtos = new ArrayList<>();
+        /*List<MSApplyDto> msApplyDtos = new ArrayList<>();
         msApplies.forEach(msApply -> {
             MSApplyDto msApplyDto = new MSApplyDto();
             BeanUtils.copyProperties(msApply, msApplyDto);
@@ -67,8 +68,8 @@ public class MSApplyController {
                         msApiDtoList.add(msApiService.trans(msApi));
                     });
             msApplyDtos.add(msApplyDto);
-        });
-        return ResultUtil.success(msApplyDtos);
+        });*/
+        return ResultUtil.success(msApplies);
     }
 
     @GetMapping("/page")

@@ -4,6 +4,7 @@ import cn.adcc.client.DO.MSApi;
 import cn.adcc.client.DO.MSApply;
 import cn.adcc.client.DO.MSUser;
 import cn.adcc.client.DO.MSUserApi;
+import cn.adcc.client.VO.PageQuery;
 import cn.adcc.client.enums.MSApiStatusEnum;
 import cn.adcc.client.enums.MSApplyStatusEnum;
 import cn.adcc.client.enums.MSUserApiStatusEnum;
@@ -20,11 +21,14 @@ import cn.adcc.client.utils.ConvertUtils;
 import cn.adcc.client.utils.EmptyUtils;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.Example;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Sort;
 import org.springframework.scheduling.annotation.Async;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import org.springframework.web.bind.annotation.RequestBody;
 
 import java.sql.Timestamp;
 import java.util.*;
@@ -45,8 +49,14 @@ public class MSApplyServiceImpl implements MSApplyService {
     private RedisService redisService;
 
     @Override
-    public List<MSApply> findMSApplies() {
-        return msApplyRepository.findMSAppliesByOrderByApplyTimeDesc();
+    public Page<MSApply> findMSApplies(PageQuery pageQuery) {
+        MSApply msApply = new MSApply();
+        msApply.setStatus(pageQuery.getStatus());
+        Example<MSApply> example = Example.of(msApply);
+        Sort.Order order = new Sort.Order(Sort.Direction.DESC, "applyTime");
+        Sort sort = Sort.by(order);
+        PageRequest pageRequest = PageRequest.of(pageQuery.getPage() - 1, pageQuery.getLimit(), sort);
+        return msApplyRepository.findAll(example, pageRequest);
     }
 
     public List<MSApply> findMSAppliesPage() {

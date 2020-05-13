@@ -50,7 +50,7 @@ public class CheckTask {
     @Autowired
     private RestTemplate restTemplate;
 
-    @Scheduled(fixedRate = 1000 * 60)
+//    @Scheduled(fixedRate = 1000 * 60)
     public void checkApply() {
         try {
             log.debug("[任务][检查申请] 开始");

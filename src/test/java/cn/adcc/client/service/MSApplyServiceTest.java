@@ -23,8 +23,8 @@ class MSApplyServiceTest extends ClientApplicationTests {
 
     @Test
     void findMSApplies() {
-        List<MSApply> msApplies = msApplyService.findMSApplies();
-        System.out.println(msApplies);
+//        List<MSApply> msApplies = msApplyService.findMSApplies();
+//        System.out.println(msApplies);
     }
 
     @Test

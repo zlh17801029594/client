@@ -2,6 +2,8 @@ package cn.adcc.client.service;
 
 import cn.adcc.client.DO.MSApply;
 import cn.adcc.client.DO.MSUser;
+import cn.adcc.client.VO.PageQuery;
+import org.springframework.data.domain.Page;
 
 import java.util.Date;
 import java.util.List;
@@ -12,7 +14,7 @@ public interface MSApplyService {
      *
      * @return
      */
-    List<MSApply> findMSApplies();
+    Page<MSApply> findMSApplies(PageQuery pageQuery);
 
     List<MSApply> findMSAppliesPage();
 
