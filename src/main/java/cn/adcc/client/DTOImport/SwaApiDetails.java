@@ -6,7 +6,7 @@ import java.util.List;
 import java.util.Map;
 
 @Data
-public class ApiDetails {
+public class SwaApiDetails {
 //    private List<String> tags;
     private String summary;
     private String description;

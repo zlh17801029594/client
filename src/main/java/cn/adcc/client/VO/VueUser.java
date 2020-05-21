@@ -2,7 +2,7 @@ package cn.adcc.client.VO;
 
 import java.util.List;
 
-public class User {
+public class VueUser {
     private List<String> roles;
     private String introduction;
     private String avatar;
@@ -40,7 +40,7 @@ public class User {
         this.name = name;
     }
 
-    public User(List<String> roles, String introduction, String avatar, String name) {
+    public VueUser(List<String> roles, String introduction, String avatar, String name) {
         this.roles = roles;
         this.introduction = introduction;
         this.avatar = avatar;

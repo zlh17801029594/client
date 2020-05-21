@@ -9,17 +9,13 @@ import cn.adcc.client.DTOImport.*;
 import cn.adcc.client.enums.MSApiStatusEnum;
 import cn.adcc.client.enums.MSApplyStatusEnum;
 import cn.adcc.client.enums.MSUserApiStatusEnum;
-import cn.adcc.client.enums.ResultEnum;
 import cn.adcc.client.exception.BusinessException;
-import cn.adcc.client.exception.MSAPiException;
 import cn.adcc.client.repository.MSApiRepository;
 import cn.adcc.client.repository.MSApplyRepository;
 import cn.adcc.client.repository.MSUserApiRepository;
 import cn.adcc.client.repository.MSUserRepository;
 import cn.adcc.client.service.MSApiService;
 import cn.adcc.client.service.RedisService;
-import cn.adcc.client.service.SwaggerApiDocService;
-import cn.adcc.client.service.UserService;
 import cn.adcc.client.sso.SsoUser;
 import cn.adcc.client.utils.BeanFindNullUtils;
 import cn.adcc.client.utils.ConvertUtils;
@@ -29,7 +25,6 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.scheduling.annotation.Async;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -94,21 +89,21 @@ public class MSApiServiceImpl implements MSApiService {
 
             /*接口信息*/
             List<MSApiDto> msApiDtoList = new ArrayList<>();
-            Map<String, Map<String, ApiDetails>> paths = swaggerApiDoc.getPaths();
+            Map<String, Map<String, SwaApiDetails>> paths = swaggerApiDoc.getPaths();
             if (EmptyUtils.isNotEmpty(paths)) {
                 paths.keySet()
                         .stream()
                         .forEach(pathName -> {
-                            Map<String, ApiDetails> apiDetailsMap = paths.get(pathName);
+                            Map<String, SwaApiDetails> apiDetailsMap = paths.get(pathName);
                             if (EmptyUtils.isNotEmpty(apiDetailsMap)) {
                                 apiDetailsMap.keySet()
                                         .stream()
                                         .forEach(method -> {
-                                            ApiDetails apiDetails = apiDetailsMap.get(method);
-                                            if (apiDetails != null) {
+                                            SwaApiDetails swaApiDetails = apiDetailsMap.get(method);
+                                            if (swaApiDetails != null) {
                                                 MSApiDto msApiDtoChild = new MSApiDto();
-                                                msApiDtoChild.setName(apiDetails.getSummary());
-                                                msApiDtoChild.setDescription(apiDetails.getDescription());
+                                                msApiDtoChild.setName(swaApiDetails.getSummary());
+                                                msApiDtoChild.setDescription(swaApiDetails.getDescription());
                                                 String apiUrl = "";
                                                 String basePath = msApiDto.getUrl();
                                                 if (basePath.endsWith("/")) {
@@ -118,9 +113,9 @@ public class MSApiServiceImpl implements MSApiService {
                                                 }
                                                 msApiDtoChild.setUrl(apiUrl);
                                                 msApiDtoChild.setHttpMethod(method);
-                                                msApiDtoChild.setDeprecated(apiDetails.getDeprecated());
+                                                msApiDtoChild.setDeprecated(swaApiDetails.getDeprecated());
 
-                                                List<ApiParameterDetails> apiParameterDetailsList = apiDetails.getParameters();
+                                                List<ApiParameterDetails> apiParameterDetailsList = swaApiDetails.getParameters();
                                                 if (EmptyUtils.isNotEmpty(apiParameterDetailsList)) {
                                                     apiParameterDetailsList.stream()
                                                             .filter(apiParameterDetails -> apiParameterDetails != null)
@@ -141,13 +136,13 @@ public class MSApiServiceImpl implements MSApiService {
 
                                                 /*otherInfo*/
                                                 OtherInfo otherInfo = new OtherInfo();
-                                                otherInfo.setConsumes(apiDetails.getConsumes());
-                                                otherInfo.setProduces(apiDetails.getProduces());
-                                                otherInfo.setParameters(apiDetails.getParameters());
+                                                otherInfo.setConsumes(swaApiDetails.getConsumes());
+                                                otherInfo.setProduces(swaApiDetails.getProduces());
+                                                otherInfo.setParameters(swaApiDetails.getParameters());
                                                 List<ResponseDesc> responseDescList = new ArrayList<>();
                                                 otherInfo.setResponses(responseDescList);
 
-                                                Map<String, ResponseDetails> responseDetailsMap = apiDetails.getResponses();
+                                                Map<String, ResponseDetails> responseDetailsMap = swaApiDetails.getResponses();
                                                 if (EmptyUtils.isNotEmpty(responseDetailsMap)) {
                                                     responseDetailsMap.keySet()
                                                             .stream()

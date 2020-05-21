@@ -5,10 +5,9 @@ import cn.adcc.client.DTOImport.SwaggerApiDoc;
 import cn.adcc.client.VO.Result;
 import cn.adcc.client.enums.ResultEnum;
 import cn.adcc.client.exception.MSAPiException;
-import cn.adcc.client.exception.UserException;
 import cn.adcc.client.service.MSApiService;
 import cn.adcc.client.service.SwaggerApiDocService;
-import cn.adcc.client.service.UserService;
+import cn.adcc.client.service.SsoUserService;
 import cn.adcc.client.utils.ResultUtil;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.util.StringUtils;
@@ -18,14 +17,14 @@ import java.util.Arrays;
 import java.util.List;
 
 @RestController
-@RequestMapping("/api")
+@RequestMapping("/1.1/api")
 public class MSApiController {
     @Autowired
     private MSApiService msApiService;
     @Autowired
     private SwaggerApiDocService swaggerApiDocService;
     @Autowired
-    private UserService userService;
+    private SsoUserService ssoUserService;
 
     /**
      * 管理员
@@ -56,14 +55,13 @@ public class MSApiController {
          * 过期申请接口、未通过申请接口、已通过但过期接口 可再次申请；
          * 待审批、已通过(未过期)所有接口 不可再次申请
          */
-        String permision = userService.getUser().getPermission();
-        List<String> roles = Arrays.asList(StringUtils.tokenizeToStringArray(permision, ","));
+        List<String> roles = ssoUserService.getRoles();
         if (roles.contains("SUPER_ADMIN") || roles.contains("ADMIN")) {
             return ResultUtil.success(msApiService.findMSApisByStatusOn());
         } else {
-            /*Integer sensitiveLevel = userService.getUser().getSensitiveLevel();
+            /*Integer sensitiveLevel = ssoUserService.getUser().getSensitiveLevel();
             return ResultUtil.success(msApiService.findMSApisBySensitiveAndStatusOn(sensitiveLevel));*/
-            return ResultUtil.success(msApiService.findMsApisByMSUserAndStatusOn(userService.getUser()));
+            return ResultUtil.success(msApiService.findMsApisByMSUserAndStatusOn(ssoUserService.getSsoUser()));
         }
     }
 

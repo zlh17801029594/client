@@ -2,8 +2,6 @@ package cn.adcc.client.controller;
 
 import cn.adcc.client.DO.MSApply;
 import cn.adcc.client.DO.MSUser;
-import cn.adcc.client.DTO.MSApiDto;
-import cn.adcc.client.DTO.MSApplyDto;
 import cn.adcc.client.VO.ApplyDetails;
 import cn.adcc.client.VO.PageQuery;
 import cn.adcc.client.VO.Result;
@@ -12,26 +10,23 @@ import cn.adcc.client.exception.MSApplyException;
 import cn.adcc.client.service.MSApiService;
 import cn.adcc.client.service.MSApplyService;
 import cn.adcc.client.service.MSUserService;
-import cn.adcc.client.service.UserService;
+import cn.adcc.client.service.SsoUserService;
 import cn.adcc.client.sso.SsoUser;
 import cn.adcc.client.utils.ResultUtil;
-import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
-import org.springframework.data.domain.PageRequest;
 import org.springframework.util.StringUtils;
 import org.springframework.web.bind.annotation.*;
 
-import java.sql.Timestamp;
 import java.util.*;
 
 @RestController
-@RequestMapping("/apply")
+@RequestMapping("/1.1/apply")
 public class MSApplyController {
     @Autowired
     private MSApplyService msApplyService;
     @Autowired
-    private UserService userService;
+    private SsoUserService ssoUserService;
     @Autowired
     private MSUserService msUserService;
     @Autowired
@@ -47,14 +42,13 @@ public class MSApplyController {
         /**
          * 1.查询所有申请并按申请时间倒序
          */
-        String permision = userService.getUser().getPermission();
-        List<String> roles = Arrays.asList(StringUtils.tokenizeToStringArray(permision, ","));
+        List<String> roles = ssoUserService.getRoles();
         Page<MSApply> msApplies;
         if (roles.contains("SUPER_ADMIN") || roles.contains("ADMIN")) {
             msApplies = msApplyService.findMSApplies(pageQuery);
         } else {
             msApplies = null;
-//            msApplies = msApplyService.findMSAppliesByUsername(userService.getUser().getUsername());
+//            msApplies = msApplyService.findMSAppliesByUsername(ssoUserService.getUser().getUsername());
         }
         /*List<MSApplyDto> msApplyDtos = new ArrayList<>();
         msApplies.forEach(msApply -> {
@@ -98,7 +92,7 @@ public class MSApplyController {
          * 1.获取用户名
          * 2.查询当前用户所有申请并按申请时间倒序
          */
-        String username = userService.getUser().getUsername();
+        String username = ssoUserService.getSsoUser().getUsername();
         return ResultUtil.success(msApplyService.findMSAppliesByUsername(username));
     }
 
@@ -114,7 +108,7 @@ public class MSApplyController {
          * 2.查询这些接口是否处于可申请状态（接口可见、接口非待审批，接口非已通过(未过期)）
          * 3.申请、申请详情入库。
          */
-        SsoUser ssoUser = userService.getUser();
+        SsoUser ssoUser = ssoUserService.getSsoUser();
         MSUser msUser = msUserService.findMSUserBySsoUser(ssoUser);
 //        System.out.println(applyDetails.getExpireTime());
 //        System.out.println(new Date());

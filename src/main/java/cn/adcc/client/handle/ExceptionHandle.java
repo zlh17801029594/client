@@ -26,13 +26,11 @@ public class ExceptionHandle {
             return ResultUtil.error(((BusinessException) e).getCode(), e.getMessage());
         } else if (e instanceof MSApplyException) {
             return ResultUtil.error(((MSApplyException) e).getCode(), e.getMessage());
-        }/* else if (e instanceof MissingServletRequestParameterException) {
+        } else if (e instanceof MissingServletRequestParameterException) {
             return ResultUtil.error(0, e.getMessage());
         } else {
-            e.printStackTrace();
-            log.info(e.getMessage());
+            log.error("其他异常", e);
             return ResultUtil.error(-1, "未知错误");
-        }*/
-        throw e;
+        }
     }
 }

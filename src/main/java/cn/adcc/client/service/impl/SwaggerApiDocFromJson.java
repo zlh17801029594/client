@@ -24,17 +24,11 @@ public class SwaggerApiDocFromJson implements SwaggerApiDocService {
             ResponseEntity<SwaggerApiDoc> responseEntity = restTemplate.getForEntity(url, SwaggerApiDoc.class);
             return responseEntity.getBody();
         } catch (IllegalArgumentException e) {
-            e.printStackTrace();
             throw new SwaggerException(ResultEnum.COMMON_ERROR.getCode(), "URL格式不正确");
         } catch (ResourceAccessException e) {
-            e.printStackTrace();
-            throw new SwaggerException(ResultEnum.COMMON_ERROR.getCode(), "请求目标URL失败，请检查服务是否启动");
+            throw new SwaggerException(ResultEnum.COMMON_ERROR.getCode(), "请求目标URL失败，请检查目标服务是否启动");
         } catch (RestClientException e) {
-            e.printStackTrace();
             throw new SwaggerException(ResultEnum.COMMON_ERROR.getCode(), "接口内容错误");
-        } catch (Exception e) {
-            e.printStackTrace();
-            throw new SwaggerException(ResultEnum.COMMON_ERROR.getCode(), "未知错误");
         }
     }
 }
