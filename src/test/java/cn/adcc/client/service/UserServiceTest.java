@@ -17,14 +17,6 @@ class UserServiceTest extends ClientApplicationTests {
     private UserRepository userRepository;
 
     @Test
-    void save() {
-        UserDto userDto = new UserDto();
-        userDto.setUsername("明老大");
-        userDto.setSensitiveNum(20);
-        userService.save(userDto);
-    }
-
-    @Test
     void delete() {
         userRepository.deleteById(11L);
     }

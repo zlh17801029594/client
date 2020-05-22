@@ -53,7 +53,8 @@ public class Apply {
      * 关联申请详情表
      * 1.使用默认Lazy懒加载 (单独更新申请表状态概率大些)
      * 2.CascadeType：persist：级联保存，若是删除逻辑由“逻辑删除”变更为“物理删除”，则添加 remove：级联删除
+     * 3.新加需求：接口可选择性审批。CascadeType.merge级联修改使用上
      */
-    @OneToMany(mappedBy = "apply", cascade = {CascadeType.PERSIST})
+    @OneToMany(mappedBy = "apply", cascade = {CascadeType.PERSIST, CascadeType.MERGE})
     private List<ApplyDetails> applyDetailss;
 }

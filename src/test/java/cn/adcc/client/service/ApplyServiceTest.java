@@ -4,12 +4,16 @@ import cn.adcc.client.ClientApplicationTests;
 import cn.adcc.client.DO.Api;
 import cn.adcc.client.DO.Apply;
 import cn.adcc.client.DO.ApplyDetails;
+import cn.adcc.client.DTO.ApplyDetailsDto;
+import cn.adcc.client.DTO.ApplyDto;
 import cn.adcc.client.repository.ApiRepository;
 import cn.adcc.client.repository.ApplyRepository;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
+import java.util.Collections;
+import java.util.Date;
 import java.util.HashSet;
 import java.util.Set;
 
@@ -33,6 +37,16 @@ class ApplyServiceTest extends ClientApplicationTests {
 
     @Test
     void delete() {
+    }
+
+    @Test
+    void saveApplyDto() {
+        ApplyDto applyDto = new ApplyDto();
+        applyDto.setExpireTime(new Date());
+        ApplyDetailsDto applyDetails = new ApplyDetailsDto();
+        applyDetails.setApiId(532L);
+        applyDto.setApplyDetailsDtos(Collections.singletonList(applyDetails));
+        applyService.save(applyDto);
     }
 
     @Test

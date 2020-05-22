@@ -31,6 +31,10 @@ public class ApplyDetails {
     @JoinColumn(name = "apply_id")
     private Apply apply;
     /**
+     * 接口审批状态（仅部分通过申请需要）
+     */
+    private Boolean status;
+    /**
      * 关联接口表
      * 使用Lazy懒加载模式：
      * 1.申请详情表有接口表的主要信息备份，一般情况不需要关联查询接口表，只是查询接口详情时需要主动关联

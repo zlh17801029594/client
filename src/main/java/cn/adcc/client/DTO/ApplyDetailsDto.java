@@ -5,6 +5,10 @@ import lombok.Data;
 @Data
 public class ApplyDetailsDto {
     private Long id;
+    /**
+     * 接口审批状态（仅部分通过申请需要）
+     */
+    private Boolean status;
     /*接口表id*/
     private Long apiId;
     /*接口名称*/

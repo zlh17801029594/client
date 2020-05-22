@@ -1,7 +1,7 @@
 package cn.adcc.client.DTO;
 
-import cn.adcc.client.DTOImport.ApiParameterDetails;
-import cn.adcc.client.DTOImport.Schema;
+import cn.adcc.client.DTOSwagger.ApiParameterDetails;
+import cn.adcc.client.DTOSwagger.Schema;
 import lombok.Data;
 
 import java.util.List;

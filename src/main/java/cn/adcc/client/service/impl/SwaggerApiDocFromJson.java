@@ -1,17 +1,13 @@
 package cn.adcc.client.service.impl;
 
-import cn.adcc.client.DTOImport.SwaggerApiDoc;
+import cn.adcc.client.DTOSwagger.SwaggerApiDoc;
 import cn.adcc.client.enums.ResultEnum;
-import cn.adcc.client.exception.MSAPiException;
 import cn.adcc.client.exception.SwaggerException;
 import cn.adcc.client.service.SwaggerApiDocService;
-import com.fasterxml.jackson.databind.ObjectMapper;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 import org.springframework.web.client.*;
-
-import java.net.ConnectException;
 
 @Service
 public class SwaggerApiDocFromJson implements SwaggerApiDocService {

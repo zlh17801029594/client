@@ -1,9 +1,8 @@
 package cn.adcc.client.controller;
 
 import cn.adcc.client.DTO.ApiDto;
-import cn.adcc.client.DTO.MSApiDto;
 import cn.adcc.client.DTO.UserDto;
-import cn.adcc.client.DTOImport.SwaggerApiDoc;
+import cn.adcc.client.DTOSwagger.SwaggerApiDoc;
 import cn.adcc.client.VO.Result;
 import cn.adcc.client.enums.ResultEnum;
 import cn.adcc.client.exception.MSAPiException;
@@ -13,7 +12,6 @@ import cn.adcc.client.utils.ResultUtil;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
 
-import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
 

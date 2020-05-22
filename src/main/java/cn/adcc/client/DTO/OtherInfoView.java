@@ -9,7 +9,7 @@ import java.util.List;
 public class OtherInfoView {
     private List<String> consumes;
     private List<String> produces;
-    private List<MSApiParaDetails> parameters;
+    private List<ApiParaDetails> parameters;
     private Object result;
     private List<ResponseDesc> responses;
 }

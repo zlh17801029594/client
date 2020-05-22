@@ -1,25 +1,14 @@
 package cn.adcc.client.controller;
 
-import cn.adcc.client.DO.Apply;
-import cn.adcc.client.DO.MSApply;
-import cn.adcc.client.DO.MSUser;
-import cn.adcc.client.DO.User;
-import cn.adcc.client.DTO.ApiDto;
 import cn.adcc.client.DTO.ApplyDto;
-import cn.adcc.client.DTO.UserDto;
-import cn.adcc.client.VO.ApplyDetails;
-import cn.adcc.client.VO.PageQuery;
 import cn.adcc.client.VO.PageRequestDto;
 import cn.adcc.client.VO.Result;
-import cn.adcc.client.enums.MSApplyStatusEnum;
 import cn.adcc.client.enums.ResultEnum;
 import cn.adcc.client.exception.MSApplyException;
 import cn.adcc.client.service.*;
-import cn.adcc.client.sso.SsoUser;
 import cn.adcc.client.utils.EmptyUtils;
 import cn.adcc.client.utils.ResultUtil;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.data.domain.Page;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.Date;
@@ -87,6 +76,26 @@ public class ApplyController {
     @PostMapping("/pass/{id}")
     public Result passApply(@PathVariable("id") Long id) {
         applyService.updateStatusPass(id);
+        return ResultUtil.success();
+    }
+
+    /**
+     * 审批部分接口
+     * @return
+     */
+    @PostMapping("/pass-some-api")
+    public Result passApplySome(@RequestBody ApplyDto applyDto) {
+        /**
+         * 1.查询申请是否有效
+         * 2.判断申请对应申请详情接口是否 containsAll 当前接口ids 是，正常， 否，数据不一致
+         * 3.正常： set 申请状态 3部分通过；设置申请详情中出现id 为 1通过，未出现id为 0拒绝
+         * 4.级联修改apply(apply处加上 cascade.merge)
+         * 5.已通过接口加入用户接口关系表
+         */
+        if (!EmptyUtils.isNotEmpty(applyDto.getApplyDetailsDtos())) {
+            throw new MSApplyException(ResultEnum.COMMON_ERROR.getCode(), "审批接口不能为空");
+        }
+        applyService.updateStatusPassSome(applyDto);
         return ResultUtil.success();
     }
 

@@ -1,4 +1,4 @@
-package cn.adcc.client.DTOImport;
+package cn.adcc.client.DTOSwagger;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
 import lombok.Data;

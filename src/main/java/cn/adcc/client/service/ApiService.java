@@ -2,7 +2,7 @@ package cn.adcc.client.service;
 
 import cn.adcc.client.DTO.ApiDto;
 import cn.adcc.client.DTO.UserDto;
-import cn.adcc.client.DTOImport.SwaggerApiDoc;
+import cn.adcc.client.DTOSwagger.SwaggerApiDoc;
 
 import java.util.List;
 

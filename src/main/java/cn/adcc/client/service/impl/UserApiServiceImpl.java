@@ -3,7 +3,7 @@ package cn.adcc.client.service.impl;
 import cn.adcc.client.DO.UserApi;
 import cn.adcc.client.DO.UserApiKey;
 import cn.adcc.client.DTO.UserApiDto;
-import cn.adcc.client.enums.MSUserApiStatusEnum;
+import cn.adcc.client.enums.UserApiStatusEnum;
 import cn.adcc.client.exception.BusinessException;
 import cn.adcc.client.repository.UserApiRepository;
 import cn.adcc.client.service.RedisService;
@@ -31,7 +31,7 @@ public class UserApiServiceImpl implements UserApiService {
 
     @Override
     public List<UserApiDto> findByUserIdAndStatusNotExpire(Long userId) {
-        List<UserApi> userApis = userApiRepository.findByUserIdAndStatusNot(userId, MSUserApiStatusEnum.EXPIRE.getCode());
+        List<UserApi> userApis = userApiRepository.findByUserIdAndStatusNot(userId, UserApiStatusEnum.EXPIRE.getCode());
         return CopyUtil.copyList(userApis, UserApiDto.class);
     }
 
@@ -59,14 +59,14 @@ public class UserApiServiceImpl implements UserApiService {
     @Transactional
     public void updateStatusOnBatch(List<UserApiKey> ids) {
         log.info("[更新用户接口关系状态] [已停用=>已启用], {}", ids);
-        List<UserApi> userApis = ids.stream().map(id -> this.validate(id, MSUserApiStatusEnum.OFF.getCode())).collect(Collectors.toList());
+        List<UserApi> userApis = ids.stream().map(id -> this.validate(id, UserApiStatusEnum.OFF.getCode())).collect(Collectors.toList());
         userApis.forEach(userApi -> {
-            /*if (!MSUserApiStatusEnum.OFF.getCode().equals(msUserApi.getStatus()) ||
-                    !MSApiStatusEnum.ON.getCode().equals(msUserApi.getMsApi().getStatus()) ||
+            /*if (!UserApiStatusEnum.OFF.getCode().equals(msUserApi.getStatus()) ||
+                    !ApiStatusEnum.ON.getCode().equals(msUserApi.getMsApi().getStatus()) ||
                     msUserApi.getMsApi().getSensitiveNum() > msUserApi.getMsUser().getSensitiveNum()) {
                 throw new BusinessException();
             }*/
-            userApi.setStatus(MSUserApiStatusEnum.ON.getCode());
+            userApi.setStatus(UserApiStatusEnum.ON.getCode());
         });
         /*更新状态*/
         userApiRepository.saveAll(userApis);
@@ -78,14 +78,14 @@ public class UserApiServiceImpl implements UserApiService {
     @Transactional
     public void updateStatusOffBatch(List<UserApiKey> ids) {
         log.info("[更新用户接口关系状态] [已启用=>已停用], {}", ids);
-        List<UserApi> userApis = ids.stream().map(id -> this.validate(id, MSUserApiStatusEnum.ON.getCode())).collect(Collectors.toList());
+        List<UserApi> userApis = ids.stream().map(id -> this.validate(id, UserApiStatusEnum.ON.getCode())).collect(Collectors.toList());
         userApis.forEach(userApi -> {
-            /*if (!MSUserApiStatusEnum.ON.getCode().equals(msUserApi.getStatus()) ||
-                    !MSApiStatusEnum.ON.getCode().equals(msUserApi.getMsApi().getStatus()) ||
+            /*if (!UserApiStatusEnum.ON.getCode().equals(msUserApi.getStatus()) ||
+                    !ApiStatusEnum.ON.getCode().equals(msUserApi.getMsApi().getStatus()) ||
                     msUserApi.getMsApi().getSensitiveNum() > msUserApi.getMsUser().getSensitiveNum()) {
                 throw new BusinessException();
             }*/
-            userApi.setStatus(MSUserApiStatusEnum.OFF.getCode());
+            userApi.setStatus(UserApiStatusEnum.OFF.getCode());
         });
         /*更新状态*/
         userApiRepository.saveAll(userApis);
@@ -99,7 +99,7 @@ public class UserApiServiceImpl implements UserApiService {
         log.info("[删除用户接口关系], {}", ids);
         List<UserApi> userApis = ids.stream().map(id -> this.validate(id, null)).collect(Collectors.toList());
         List<UserApi> onUserApis = userApis.stream()
-                .filter(msUserApi -> MSUserApiStatusEnum.ON.getCode().equals(msUserApi.getStatus()))
+                .filter(msUserApi -> UserApiStatusEnum.ON.getCode().equals(msUserApi.getStatus()))
                 .collect(Collectors.toList());
         Map<String, Set<String>> userUrls = ConvertUtils.userApis2UserUrls(onUserApis);
         /*删除过期数据*/
@@ -132,5 +132,10 @@ public class UserApiServiceImpl implements UserApiService {
     @Override
     public List<UserApiDto> findByApiId(Long apiId) {
         return CopyUtil.copyList(userApiRepository.findByApiId(apiId), UserApiDto.class);
+    }
+
+    @Override
+    public UserApi findByKey(UserApiKey userApiKey) {
+        return userApiRepository.findById(userApiKey).orElse(null);
     }
 }

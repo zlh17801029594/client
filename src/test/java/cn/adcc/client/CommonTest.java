@@ -3,6 +3,9 @@ package cn.adcc.client;
 import org.junit.jupiter.api.Test;
 import org.springframework.stereotype.Component;
 
+import java.util.HashSet;
+import java.util.Set;
+
 @Component
 public class CommonTest extends ClientApplicationTests {
 
@@ -22,5 +25,21 @@ public class CommonTest extends ClientApplicationTests {
         System.out.println(a2.endsWith("/"));
         System.out.println(a3.endsWith("/"));
         System.out.println(a4.endsWith("/"));
+    }
+
+    @Test
+    void testContainsAll() {
+        Set<Integer> a = new HashSet<>();
+        a.add(1);
+        a.add(2);
+        a.add(3);
+        Set<Integer> b = new HashSet<>();
+        b.add(0);
+        b.add(3);
+        if (a.containsAll(b)) {
+            System.out.println("success");
+        } else {
+            System.out.println("fail");
+        }
     }
 }

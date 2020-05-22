@@ -78,4 +78,7 @@ public interface ApiRepository extends JpaRepository<Api, Long> {
      * @return
      */
     List<Api> findByTypeTrueAndIdIn(List<Long> ids);
+
+    /*redis同步接口*/
+    List<Api> findByTypeTrueAndStatus(Integer status);
 }

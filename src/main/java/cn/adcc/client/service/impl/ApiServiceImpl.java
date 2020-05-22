@@ -2,10 +2,10 @@ package cn.adcc.client.service.impl;
 
 import cn.adcc.client.DO.*;
 import cn.adcc.client.DTO.*;
-import cn.adcc.client.DTOImport.*;
-import cn.adcc.client.enums.MSApiStatusEnum;
-import cn.adcc.client.enums.MSApplyStatusEnum;
-import cn.adcc.client.enums.MSUserApiStatusEnum;
+import cn.adcc.client.DTOSwagger.*;
+import cn.adcc.client.enums.ApiStatusEnum;
+import cn.adcc.client.enums.ApplyStatusEnum;
+import cn.adcc.client.enums.UserApiStatusEnum;
 import cn.adcc.client.exception.BusinessException;
 import cn.adcc.client.repository.ApiRepository;
 import cn.adcc.client.service.*;
@@ -58,14 +58,14 @@ public class ApiServiceImpl implements ApiService {
                 }
                 api.setOrderNum(orderNum);
                 api.setSensitiveNum(0);
-                api.setStatus(MSApiStatusEnum.JOIN.getCode());
+                api.setStatus(ApiStatusEnum.JOIN.getCode());
                 ApiDetails apiDetails = new ApiDetails();
                 apiDetails.setApi(api);
                 api.setApiDetails(apiDetails);
                 log.info("[新增接口], {}", api);
             } else {
-                if (MSApiStatusEnum.DISABLED.getCode().equals(api.getStatus())) {
-                    api.setStatus(MSApiStatusEnum.JOIN.getCode());
+                if (ApiStatusEnum.DISABLED.getCode().equals(api.getStatus())) {
+                    api.setStatus(ApiStatusEnum.JOIN.getCode());
                 }
                 log.info("[更新接口], {}", api);
             }
@@ -239,18 +239,18 @@ public class ApiServiceImpl implements ApiService {
         }
         List<Api> apis;
         if (!ids.isEmpty()) {
-            apis = apiRepository.findByTypeTrueAndStatusNotAndIdNotIn(MSApiStatusEnum.DISABLED.getCode(), ids);
+            apis = apiRepository.findByTypeTrueAndStatusNotAndIdNotIn(ApiStatusEnum.DISABLED.getCode(), ids);
         } else {
-            apis = apiRepository.findByTypeTrueAndStatusNot(MSApiStatusEnum.DISABLED.getCode());
+            apis = apiRepository.findByTypeTrueAndStatusNot(ApiStatusEnum.DISABLED.getCode());
         }
         if (EmptyUtils.isNotEmpty(apis)) {
             log.info("[更新接口状态] [=>未生效], {}", apis);
             List<Api> apisRedis = new ArrayList<>();
             apis.forEach(api -> {
-                if (MSApiStatusEnum.ON.getCode().equals(api.getStatus())) {
+                if (ApiStatusEnum.ON.getCode().equals(api.getStatus())) {
                     apisRedis.add(api);
                 }
-                api.setStatus(MSApiStatusEnum.DISABLED.getCode());
+                api.setStatus(ApiStatusEnum.DISABLED.getCode());
                 apiRepository.save(api);
             });
             redisService.updateRedisApi(ConvertUtils.apis2UrlSens(apisRedis), false);
@@ -287,7 +287,7 @@ public class ApiServiceImpl implements ApiService {
         List<Api> apis = apiRepository.findByTypeFalseOrderByOrderNum();
         if (EmptyUtils.isNotEmpty(apis)) {
             apis.forEach(api -> {
-                List<Api> apiChilds = apiRepository.findByTypeTrueAndPidAndStatusOrderByOrderNum(api.getId(), MSApiStatusEnum.ON.getCode());
+                List<Api> apiChilds = apiRepository.findByTypeTrueAndPidAndStatusOrderByOrderNum(api.getId(), ApiStatusEnum.ON.getCode());
                 if (EmptyUtils.isNotEmpty(apiChilds)) {
                     ApiDto apiDto = new ApiDto();
                     apiDtos.add(apiDto);
@@ -311,7 +311,7 @@ public class ApiServiceImpl implements ApiService {
         List<Api> apis = apiRepository.findByTypeFalseOrderByOrderNum();
         if (EmptyUtils.isNotEmpty(apis)) {
             apis.forEach(api -> {
-                List<Api> apiChilds = apiRepository.findByTypeTrueAndPidAndStatusAndSensitiveNumLessThanEqualOrderByOrderNum(api.getId(), MSApiStatusEnum.ON.getCode(), sensitiveNum);
+                List<Api> apiChilds = apiRepository.findByTypeTrueAndPidAndStatusAndSensitiveNumLessThanEqualOrderByOrderNum(api.getId(), ApiStatusEnum.ON.getCode(), sensitiveNum);
                 if (EmptyUtils.isNotEmpty(apiChilds)) {
                     ApiDto apiDto = new ApiDto();
                     apiDtos.add(apiDto);
@@ -330,7 +330,7 @@ public class ApiServiceImpl implements ApiService {
     }
 
     public List<ApiDto> findByUserDto(UserDto userDto) {
-        UserDto user = userService.findByUsername(userDto.getUsername());
+        User user = userService.findByUsername(userDto.getUsername());
         Integer sensitiveNum = userDto.getSensitiveNum();
         List<ApiDto> apiDtos = this.findByStatusOnAndSensitive(sensitiveNum);
         if(user != null) {
@@ -338,7 +338,7 @@ public class ApiServiceImpl implements ApiService {
             Map<Long, Integer> idStatus = new HashMap<>();
             /*接口：待审批申请*/
             List<ApplyDto> applyDtos = applyService.findByUserIdAndStatusApply(userId);
-            applyDtos.forEach(applyDto -> applyDto.getApplyDetailsDtos().forEach(applyDetailsDto -> idStatus.put(applyDetailsDto.getApiId(), MSApplyStatusEnum.APPLY.getCode())));
+            applyDtos.forEach(applyDto -> applyDto.getApplyDetailsDtos().forEach(applyDetailsDto -> idStatus.put(applyDetailsDto.getApiId(), ApplyStatusEnum.APPLY.getCode())));
             /*接口：未过期用户接口*/
             List<UserApiDto> userApiDtos = userApiService.findByUserIdAndStatusNotExpire(userId);
             userApiDtos.forEach(userApiDto -> idStatus.put(userApiDto.getApiId(), userApiDto.getStatus()));
@@ -358,7 +358,7 @@ public class ApiServiceImpl implements ApiService {
 
     @Override
     public List<ApiDto> findByTypeTrueAndStatusOnAndSensitive(Integer sensitiveNum) {
-        List<Api> apis = apiRepository.findByTypeTrueAndStatusAndSensitiveNumLessThanEqual(MSApiStatusEnum.ON.getCode(), sensitiveNum);
+        List<Api> apis = apiRepository.findByTypeTrueAndStatusAndSensitiveNumLessThanEqual(ApiStatusEnum.ON.getCode(), sensitiveNum);
         return CopyUtil.copyList(apis, ApiDto.class);
     }
 
@@ -379,7 +379,7 @@ public class ApiServiceImpl implements ApiService {
         apis.stream()
                 .filter(api -> !sens.equals(api.getSensitiveNum()))
                 .forEach(api -> {
-                    if (MSApiStatusEnum.ON.getCode().equals(api.getStatus())) {
+                    if (ApiStatusEnum.ON.getCode().equals(api.getStatus())) {
                         redisApis.add(api);
                     }
                     if (api.getSensitiveNum() < sens) {
@@ -406,9 +406,9 @@ public class ApiServiceImpl implements ApiService {
     @Transactional
     public void updateStatusOnBatch(List<Long> ids) {
         log.info("[更新接口状态] [已停用=>已启用], {}", ids);
-        List<Api> apis = ids.stream().map(id -> this.validate(id, MSApiStatusEnum.OFF.getCode())).collect(Collectors.toList());
+        List<Api> apis = ids.stream().map(id -> this.validate(id, ApiStatusEnum.OFF.getCode())).collect(Collectors.toList());
         apis.forEach(api -> {
-            api.setStatus(MSApiStatusEnum.ON.getCode());
+            api.setStatus(ApiStatusEnum.ON.getCode());
         });
         /*更新状态为启用*/
         apiRepository.saveAll(apis);
@@ -426,9 +426,9 @@ public class ApiServiceImpl implements ApiService {
     @Transactional
     public void updateStatusOffBatch(List<Long> ids) {
         log.info("[更新接口状态] [已启用=>已停用], {}", ids);
-        List<Api> apis = ids.stream().map(id -> this.validate(id, MSApiStatusEnum.ON.getCode())).collect(Collectors.toList());
+        List<Api> apis = ids.stream().map(id -> this.validate(id, ApiStatusEnum.ON.getCode())).collect(Collectors.toList());
         apis.forEach(api -> {
-            api.setStatus(MSApiStatusEnum.OFF.getCode());
+            api.setStatus(ApiStatusEnum.OFF.getCode());
         });
         /*更新状态为停用*/
         apiRepository.saveAll(apis);
@@ -446,9 +446,9 @@ public class ApiServiceImpl implements ApiService {
     @Transactional
     public void updateStatusJoinBatch(List<Long> ids) {
         log.info("[更新接口状态] [待接入=>已启用], {}", ids);
-        List<Api> apis = ids.stream().map(id -> this.validate(id, MSApiStatusEnum.JOIN.getCode())).collect(Collectors.toList());
+        List<Api> apis = ids.stream().map(id -> this.validate(id, ApiStatusEnum.JOIN.getCode())).collect(Collectors.toList());
         apis.forEach(api -> {
-            api.setStatus(MSApiStatusEnum.ON.getCode());
+            api.setStatus(ApiStatusEnum.ON.getCode());
         });
         /*更新状态为启用*/
         apiRepository.saveAll(apis);
@@ -482,9 +482,9 @@ public class ApiServiceImpl implements ApiService {
     public void delete(Long id) {
         log.info("[删除接口], {}", id);
         /*1.获取检验成功api*/
-        Api api = this.validate(id, MSApiStatusEnum.DISABLED.getCode());
+        Api api = this.validate(id, ApiStatusEnum.DISABLED.getCode());
         /*2.用户接口关系受影响数据*/
-        List<UserApi> userApis = api.getUserApis().stream().filter(userApi -> MSUserApiStatusEnum.ON.getCode().equals(userApi.getStatus()))
+        List<UserApi> userApis = api.getUserApis().stream().filter(userApi -> UserApiStatusEnum.ON.getCode().equals(userApi.getStatus()))
                 .collect(Collectors.toList());
         Map<String, Set<String>> userUrls = ConvertUtils.userApis2UserUrls(userApis);
         /*3.申请受影响数据*/
@@ -507,11 +507,11 @@ public class ApiServiceImpl implements ApiService {
     public void deleteBatch(List<Long> ids) {
         log.info("[删除接口], {}", ids);
         /*1.获取检验成功api*/
-        List<Api> apis = ids.stream().map(id -> this.validate(id, MSApiStatusEnum.DISABLED.getCode()))
+        List<Api> apis = ids.stream().map(id -> this.validate(id, ApiStatusEnum.DISABLED.getCode()))
                 .collect(Collectors.toList());
         /*2.用户接口关系受影响数据*/
         List<UserApi> userApis = apis.stream()
-                .flatMap(api -> api.getUserApis().stream().filter(userApi -> MSUserApiStatusEnum.ON.getCode().equals(userApi.getStatus())))
+                .flatMap(api -> api.getUserApis().stream().filter(userApi -> UserApiStatusEnum.ON.getCode().equals(userApi.getStatus())))
                 .collect(Collectors.toList());
         Map<String, Set<String>> userUrls = ConvertUtils.userApis2UserUrls(userApis);
         /*3.申请受影响数据*/
@@ -584,21 +584,21 @@ public class ApiServiceImpl implements ApiService {
             throw new RuntimeException();
         }
         List<ApiParameterDetails> apiParameterDetailsList = otherInfo.getParameters();
-        List<MSApiParaDetails> msApiParaDetailsList = new ArrayList<>();
+        List<ApiParaDetails> apiParaDetailsList = new ArrayList<>();
         if (EmptyUtils.isNotEmpty(apiParameterDetailsList)) {
             apiParameterDetailsList
                     .forEach(apiParameterDetails -> {
                         Object value = tranSchema(apiParameterDetails);
-                        MSApiParaDetails msApiParaDetails = new MSApiParaDetails();
-                        BeanUtils.copyProperties(apiParameterDetails, msApiParaDetails);
-                        if (msApiParaDetails.getExample() == null) {
-                            msApiParaDetails.setExample(value);
+                        ApiParaDetails apiParaDetails = new ApiParaDetails();
+                        BeanUtils.copyProperties(apiParameterDetails, apiParaDetails);
+                        if (apiParaDetails.getExample() == null) {
+                            apiParaDetails.setExample(value);
                         }
-                        msApiParaDetailsList.add(msApiParaDetails);
+                        apiParaDetailsList.add(apiParaDetails);
                     });
         }
         BeanUtils.copyProperties(otherInfo, otherInfoView);
-        otherInfoView.setParameters(msApiParaDetailsList);
+        otherInfoView.setParameters(apiParaDetailsList);
 
         Schema result = otherInfo.getResult();
         Object value = null;

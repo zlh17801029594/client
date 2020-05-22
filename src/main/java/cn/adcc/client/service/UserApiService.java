@@ -24,4 +24,6 @@ public interface UserApiService {
     List<UserApiDto> findByUserId(Long userId);
 
     List<UserApiDto> findByApiId(Long apiId);
+
+    UserApi findByKey(UserApiKey userApiKey);
 }
