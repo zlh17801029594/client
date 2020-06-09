@@ -1,5 +1,6 @@
 package cn.adcc.client.controller;
 
+import cn.adcc.client.DO.User;
 import cn.adcc.client.DTO.ApplyDto;
 import cn.adcc.client.VO.PageRequestDto;
 import cn.adcc.client.VO.Result;
@@ -21,6 +22,8 @@ public class ApplyController {
     private ApplyService applyService;
     @Autowired
     private SsoUserService ssoUserService;
+    @Autowired
+    private UserService userService;
 
     /**
      * 管理员
@@ -32,14 +35,32 @@ public class ApplyController {
         /**
          * 1.查询所有申请并按申请时间倒序
          */
-        List<String> roles = ssoUserService.getRoles();
         if (pageRequestDto.getData() == null) {
             pageRequestDto.setData(new ApplyDto());
         }
-        if (roles.contains("SUPER_ADMIN") || roles.contains("ADMIN")) {
-            applyService.list(pageRequestDto);
-        } else {
-            pageRequestDto.getData().setUsername(ssoUserService.getSsoUser().getUsername());
+        pageRequestDto.getData().setDelAdmin(false);
+        applyService.list(pageRequestDto);
+        return ResultUtil.success(pageRequestDto);
+    }
+
+    /**
+     * 普通用户
+     * 查询自身申请
+     * @param pageRequestDto
+     * @return
+     */
+    @PostMapping("/user/list")
+    public Result getAppliesByUser(@RequestBody PageRequestDto<ApplyDto> pageRequestDto) {
+        /**
+         * 1.查询所有申请并按申请时间倒序
+         */
+        if (pageRequestDto.getData() == null) {
+            pageRequestDto.setData(new ApplyDto());
+        }
+        String username = ssoUserService.getSsoUser().getUsername();
+        User user = userService.findByUsername(username);
+        if (user != null) {
+            pageRequestDto.getData().setUserId(user.getId());
             applyService.list(pageRequestDto);
         }
         return ResultUtil.success(pageRequestDto);

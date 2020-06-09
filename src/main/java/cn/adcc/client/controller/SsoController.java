@@ -1,9 +1,13 @@
 package cn.adcc.client.controller;
 
+import cn.adcc.client.VO.Result;
 import cn.adcc.client.config.SsoConfig;
 import cn.adcc.client.sso.Constant;
+import cn.adcc.client.utils.ResultUtil;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.util.StringUtils;
+import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
@@ -17,8 +21,22 @@ public class SsoController {
     @Autowired
     private SsoConfig ssoConfig;
 
+    @Value("${zuul.url:}")
+    private String zuulUrl;
+
     @Autowired
     private HttpServletResponse response;
+
+    @GetMapping("/url")
+    public Result getZuulUrl() {
+        return ResultUtil.success(zuulUrl);
+    }
+
+    @GetMapping("/index")
+    public void ssoIndex() throws IOException {
+        String indexPageUrl = ssoConfig.ssoServer;
+        response.sendRedirect(indexPageUrl);
+    }
 
     @RequestMapping("/login")
     public void ssoLogin(String referer) throws IOException {

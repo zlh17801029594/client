@@ -47,6 +47,8 @@ public class Apply {
     private Integer status;
     /*失效原因*/
     private String reason;
+    /*管理员端删除字段*/
+    private Boolean delAdmin;
     /*伪删除字段*/
     private Boolean delFlag;
     /**

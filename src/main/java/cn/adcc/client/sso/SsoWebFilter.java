@@ -88,6 +88,16 @@ public class SsoWebFilter extends HttpServlet implements Filter {
                 if (!SsoUtils.isEmpty(content)) {
                     ssoUser = SsoUtils.readValue(content, SsoUser.class);
                 }
+                /*if (encodeSessionId.equals("1")) {
+                    ssoUser = new SsoUser();
+                    ssoUser.setUsername("admin");
+                    ssoUser.setPermission("ADMIN");
+                } else if (encodeSessionId.equals("2")){
+                    ssoUser = new SsoUser();
+                    ssoUser.setUsername("test");
+                    ssoUser.setPermission("TEST");
+                    ssoUser.setSensitiveLevel(0);
+                }*/
             } catch (Exception e) {
                 logger.error("exception in loginCheck", e);
                 res.setContentType("application/json;charset=UTF-8");
@@ -104,6 +114,7 @@ public class SsoWebFilter extends HttpServlet implements Filter {
 
             // ser sso user
             request.setAttribute(Constant.SSO_USER, ssoUser);
+            request.setAttribute(Constant.SSO_SESSIONID, sessionid);
         }
         // already login, allow
         chain.doFilter(request, response);

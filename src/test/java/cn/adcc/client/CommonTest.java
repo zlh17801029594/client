@@ -3,8 +3,12 @@ package cn.adcc.client;
 import org.junit.jupiter.api.Test;
 import org.springframework.stereotype.Component;
 
+import java.sql.Timestamp;
+import java.text.SimpleDateFormat;
+import java.util.Date;
 import java.util.HashSet;
 import java.util.Set;
+import java.util.UUID;
 
 @Component
 public class CommonTest extends ClientApplicationTests {
@@ -41,5 +45,13 @@ public class CommonTest extends ClientApplicationTests {
         } else {
             System.out.println("fail");
         }
+    }
+
+    @Test
+    void testUUID() {
+        String applyNum = new SimpleDateFormat("yyyyMMddHHmmss").format(new Date());
+        System.out.println(applyNum);
+        long uuid = UUID.randomUUID().timestamp();
+        System.out.println(uuid);
     }
 }

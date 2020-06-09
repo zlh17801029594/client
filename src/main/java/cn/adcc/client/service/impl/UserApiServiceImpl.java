@@ -97,7 +97,7 @@ public class UserApiServiceImpl implements UserApiService {
     @Transactional
     public void deleteBatch(List<UserApiKey> ids) {
         log.info("[删除用户接口关系], {}", ids);
-        List<UserApi> userApis = ids.stream().map(id -> this.validate(id, null)).collect(Collectors.toList());
+        List<UserApi> userApis = ids.stream().map(id -> this.validateDelete(id, UserApiStatusEnum.ON.getCode())).collect(Collectors.toList());
         List<UserApi> onUserApis = userApis.stream()
                 .filter(msUserApi -> UserApiStatusEnum.ON.getCode().equals(msUserApi.getStatus()))
                 .collect(Collectors.toList());
@@ -106,6 +106,22 @@ public class UserApiServiceImpl implements UserApiService {
         userApiRepository.deleteAll(userApis);
         /*移除启用状态用户接口关系*/
         redisService.updateRedisUserApi(userUrls, false);
+    }
+
+    private UserApi validateDelete(UserApiKey id, Integer status) {
+        Optional<UserApi> userApiOptional = userApiRepository.findById(id);
+        if (userApiOptional.isPresent()) {
+            UserApi userApi = userApiOptional.get();
+            /*状态是否一致*/
+            if (status != null && status.equals(userApi.getStatus())) {
+                log.error("[数据不一致] [用户接口状态不能为: {}], {}", status, userApi);
+                throw new BusinessException();
+            }
+            return userApi;
+        }
+        /*数据是否存在*/
+        log.error("[数据不一致] [对应数据不存在], {}", id);
+        throw new BusinessException();
     }
 
     private UserApi validate(UserApiKey id, Integer status) {

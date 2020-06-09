@@ -113,7 +113,7 @@ public class RedisServiceImpl implements RedisService {
                 try {
                     allUserUrls.put(username, getSet("user:" + username));
                 } catch (Exception e) {
-                    log.error(String.format("[redis获取用户接口关系信息] 失败 [%]", username));
+                    log.error(String.format("[redis获取用户接口关系信息] 失败 [%s]", username));
                 }
             });
         }
@@ -215,6 +215,7 @@ public class RedisServiceImpl implements RedisService {
             flag = true;
         } catch (Exception e) {
             //考虑业务是否需要抛出异常
+            e.printStackTrace();
             throw new RuntimeException("redis删除hash元素异常");
         }
         return flag;

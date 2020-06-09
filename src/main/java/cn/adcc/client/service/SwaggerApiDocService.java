@@ -3,6 +3,8 @@ package cn.adcc.client.service;
 
 import cn.adcc.client.DTOSwagger.SwaggerApiDoc;
 
+import java.util.List;
+
 public interface SwaggerApiDocService {
-    SwaggerApiDoc getSwaggerApiDoc(String url);
+    List<SwaggerApiDoc> getSwaggerApiDoc(String url);
 }

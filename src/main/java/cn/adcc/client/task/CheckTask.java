@@ -1,6 +1,7 @@
 package cn.adcc.client.task;
 
 import cn.adcc.client.DO.*;
+import cn.adcc.client.config.SsoConfig;
 import cn.adcc.client.enums.*;
 import cn.adcc.client.exception.UserException;
 import cn.adcc.client.repository.*;
@@ -11,6 +12,7 @@ import cn.adcc.client.utils.ConvertUtils;
 import cn.adcc.client.utils.EmptyUtils;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.core.ParameterizedTypeReference;
 import org.springframework.http.HttpMethod;
 import org.springframework.http.ResponseEntity;
@@ -42,7 +44,10 @@ public class CheckTask {
     @Autowired
     private RestTemplate restTemplate;
 
-    @Scheduled(fixedRate = 1000 * 60)
+    @Autowired
+    private SsoConfig ssoConfig;
+
+    @Scheduled(cron = "${task.cron:0 */5 * * * *}")
     public void checkApply() {
         try {
             log.debug("[任务][检查申请] 开始");
@@ -119,7 +124,8 @@ public class CheckTask {
     protected void callUpdateUsers() {
         List<SsoUser> ssoUsers;
         try {
-            ResponseEntity<List<SsoUser>> responseEntity = restTemplate.exchange("http://192.168.204.67:8085/user/ssoUsers",
+            String url = ssoConfig.ssoServer.concat("/user/ssoUsers");
+            ResponseEntity<List<SsoUser>> responseEntity = restTemplate.exchange(url,
                     HttpMethod.GET, null,
                     new ParameterizedTypeReference<List<SsoUser>>() {});
             ssoUsers = responseEntity.getBody();
@@ -129,7 +135,7 @@ public class CheckTask {
         /*可能产生空指针异常警告，添加上这个 ssoUsers != null*/
         if (ssoUsers != null) {
             ssoUsers.forEach(ssoUser -> {
-                if (ssoUser == null || !StringUtils.isEmpty(ssoUser.getUsername())) {
+                if (ssoUser == null || StringUtils.isEmpty(ssoUser.getUsername())) {
                     throw new UserException(ResultEnum.COMMON_ERROR.getCode(), "用户信息异常");
                 }
             });

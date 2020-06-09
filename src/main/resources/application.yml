@@ -3,7 +3,13 @@ sso:
   logout:
     path: /logout
   excluded:
-    paths: /**/*.css, /**/*.js, /**/*.png, /**/*.jpg,/static/**,/user/update,/sso/**,/,/**/*
+    paths: /**/*.css, /**/*.js, /**/*.png, /**/*.jpg,/static/**,/user/update,/sso/**,/
+zuul:
+  # 网关地址（用于更新微服务信息）默认为''
+  url: http://127.0.0.1:9000
+task:
+  # 后台任务周期cron表达式（）默认为 0 */5 * * * * 每五分钟轮询一次
+  cron: 0 */5 * * * *
 server:
   port: 9005
 spring:
@@ -13,7 +19,6 @@ spring:
     password: root
     driver-class-name: com.mysql.cj.jdbc.Driver
   jpa:
-#    show-sql: true
     open-in-view: true
     properties:
       hibernate:
@@ -23,13 +28,6 @@ spring:
     date-format: yyyy-MM-dd HH:mm:ss
     time-zone: GMT+8
   redis:
-    port: 6379
     host: 127.0.0.1
-    database: 1
 logging:
-  config: classpath:logback-bak.xml
-  level:
-    org.hibernate.SQL: debug
-#    org.hibernate.engine.QueryParameters: debug
-#    org.hibernate.engine.query.HQLQueryPlan: debug
-#    org.hibernate.type.descriptor.sql.BasicBinder: trace
+  config: classpath:logback.xml

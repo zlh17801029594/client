@@ -32,8 +32,7 @@ public class SsoUserServiceImpl implements SsoUserService {
     public VueUser getUserInfo() {
         SsoUser ssoUser = this.getSsoUser();
         List<String> roles = Arrays.asList(StringUtils.tokenizeToStringArray(ssoUser.getPermission(), ","));
-        VueUser vueUser = new VueUser(roles, "", "", ssoUser.getUsername());
-        return vueUser;
+        return new VueUser(roles, "", "", ssoUser.getUsername());
     }
 
     @Override

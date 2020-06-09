@@ -12,12 +12,10 @@ import cn.adcc.client.sso.SsoUser;
 import cn.adcc.client.utils.CopyUtil;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.data.domain.Example;
-import org.springframework.data.domain.Page;
-import org.springframework.data.domain.PageRequest;
-import org.springframework.data.domain.Sort;
+import org.springframework.data.domain.*;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import org.springframework.util.StringUtils;
 
 import java.util.*;
 import java.util.stream.Collectors;
@@ -205,8 +203,26 @@ public class ApplyServiceImpl implements ApplyService {
     @Transactional
     public void deleteById(Long id) {
         log.info("[删除申请], {}", id);
-        Apply apply = this.validate(id, null);
-        applyRepository.delete(apply);
+        Apply apply = this.validateDelete(id, ApplyStatusEnum.APPLY.getCode());
+//        applyRepository.delete(apply);
+        apply.setDelAdmin(true);
+        applyRepository.save(apply);
+    }
+
+    private Apply validateDelete(Long id, Integer status) {
+        Optional<Apply> applyOptional = applyRepository.findById(id);
+        if (applyOptional.isPresent()) {
+            Apply apply = applyOptional.get();
+            /*状态是否一致*/
+            if (status != null && status.equals(apply.getStatus())) {
+                log.error("[数据不一致] [申请状态不能为: {}], {}", status, apply);
+                throw new BusinessException();
+            }
+            return apply;
+        }
+        /*数据是否存在*/
+        log.error("[数据不一致] [对应数据不存在], {}", id);
+        throw new BusinessException();
     }
 
     private Apply validate(Long id, Integer status) {
@@ -294,9 +310,15 @@ public class ApplyServiceImpl implements ApplyService {
     @Override
     public void list(PageRequestDto<ApplyDto> pageRequestDto) {
         ApplyDto applyDto = pageRequestDto.getData();
-
         Apply apply = CopyUtil.copy(applyDto, Apply.class);
-        Example<Apply> example = Example.of(apply);
+        String username = apply.getUsername();
+        if (StringUtils.isEmpty(username)) {
+            apply.setUsername(null);
+        }
+        // 构造ExampleMatcher
+        ExampleMatcher matcher = ExampleMatcher.matching()
+                .withStringMatcher(ExampleMatcher.StringMatcher.CONTAINING);
+        Example<Apply> example = Example.of(apply, matcher);
         Sort.Order order = new Sort.Order(Sort.Direction.DESC, "applyTime");
         Sort sort = Sort.by(order);
         PageRequest pageRequest = PageRequest.of(pageRequestDto.getPage() - 1, pageRequestDto.getLimit(), sort);

@@ -23,11 +23,7 @@ public class BeanFindNullUtils {
                 if (getterMethod.invoke(current) == null){
                     nullPropName.add(propertyName);
                 }
-            } catch (IllegalAccessException e) {
-                e.printStackTrace();
-            } catch (IntrospectionException e) {
-                e.printStackTrace();
-            } catch (InvocationTargetException e) {
+            } catch (IllegalAccessException | IntrospectionException | InvocationTargetException e) {
                 e.printStackTrace();
             }
         }

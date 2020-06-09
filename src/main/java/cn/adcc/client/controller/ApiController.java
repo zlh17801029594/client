@@ -9,14 +9,17 @@ import cn.adcc.client.exception.MSAPiException;
 import cn.adcc.client.service.*;
 import cn.adcc.client.sso.SsoUser;
 import cn.adcc.client.utils.ResultUtil;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.Collections;
 import java.util.List;
+import java.util.stream.Collectors;
 
 @RestController
 @RequestMapping("/api")
+@Slf4j
 public class ApiController {
     @Autowired
     private SwaggerApiDocService swaggerApiDocService;
@@ -29,9 +32,15 @@ public class ApiController {
 
     @PostMapping("/updateAll")
     public Result updateAll(@RequestParam("url") String url) {
-        SwaggerApiDoc swaggerApiDoc = swaggerApiDocService.getSwaggerApiDoc(url);
-        ApiDto apiDto = apiService.swagger2ApiDto(swaggerApiDoc);
-        apiService.updateAll(Collections.singletonList(apiDto));
+        long beginTime = System.currentTimeMillis();
+        List<SwaggerApiDoc> swaggerApiDocs = swaggerApiDocService.getSwaggerApiDoc(url);
+        long time = System.currentTimeMillis() - beginTime;
+        if (time > 4500) {
+            log.error("[更新微服务信息] 时间超时: {}", time);
+            return null;
+        }
+        List<ApiDto> apiDtos = swaggerApiDocs.stream().map(swaggerApiDoc -> apiService.swagger2ApiDto(swaggerApiDoc)).collect(Collectors.toList());
+        apiService.updateAll(apiDtos);
         return ResultUtil.success();
     }
 

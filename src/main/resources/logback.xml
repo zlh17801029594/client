@@ -5,7 +5,6 @@
     <property name="DEBUG" value="debug" />
     <property name="INFO" value="info" />
     <property name="ERROR" value="error" />
-    <property name="MONITOR" value="data" />
     <property name="SIZE" value="50MB" />
 
     <appender name="console" class="ch.qos.logback.core.ConsoleAppender">
@@ -109,21 +108,6 @@
         </triggeringPolicy>
     </appender>
 
-    <appender name="monitor" class="ch.qos.logback.core.rolling.RollingFileAppender">
-        <encoder class="ch.qos.logback.classic.encoder.PatternLayoutEncoder">
-            <pattern>${LOG_PATTERN}</pattern>
-        </encoder>
-        <file>${FILE_PATH}/${MONITOR}.log</file>
-        <rollingPolicy class="ch.qos.logback.core.rolling.FixedWindowRollingPolicy">
-            <fileNamePattern>${FILE_PATH}/${MONITOR}.%i.log</fileNamePattern>
-            <minIndex>1</minIndex>
-            <maxIndex>5</maxIndex>
-        </rollingPolicy>
-        <triggeringPolicy class="ch.qos.logback.core.rolling.SizeBasedTriggeringPolicy">
-            <maxFileSize>${SIZE}</maxFileSize>
-        </triggeringPolicy>
-    </appender>
-
     <root level="INFO">
         <appender-ref ref="console" />
     </root>
@@ -133,8 +117,8 @@
         <appender-ref ref="info" />
         <appender-ref ref="error" />
     </logger>
-    <logger name="data" level="INFO" additivity="false">
+    <logger name="org.hibernate.SQL" level="DEBUG" additivity="false">
         <appender-ref ref="console" />
-        <!--<appender-ref ref="monitor" />-->
+        <appender-ref ref="debug" />
     </logger>
 </configuration>

@@ -22,6 +22,8 @@ public class ApplyDto {
     private Integer status;
     /*失效原因*/
     private String reason;
+    /*管理员端删除字段*/
+    private Boolean delAdmin;
     /*申请详情*/
     @JsonProperty("applyDetailss")
     private List<ApplyDetailsDto> applyDetailsDtos;
