@@ -630,14 +630,16 @@ public class ApiServiceImpl implements ApiService {
                 /*布尔类型*/
                 return true;
             } else if (Type.OBJECT.equalsIgnoreCase(type)) {
-                /*处理link*/
-                Map<String, Schema> schemas = link.getProperties();
                 /*循环转换schemas*/
                 Map<String, Object> objSchema = new HashMap<>();
-                schemas.keySet()
-                        .forEach(propertyName -> {
-                            objSchema.put(propertyName, tranSchema(schemas.get(propertyName)));
-                        });
+                if (link != null) {
+                    /*处理link*/
+                    Map<String, Schema> schemas = link.getProperties();
+                    schemas.keySet()
+                            .forEach(propertyName -> {
+                                objSchema.put(propertyName, tranSchema(schemas.get(propertyName)));
+                            });
+                }
                 return objSchema;
             } else if (Type.ARRAY.equalsIgnoreCase(type)) {
                 /*递归转换items*/
