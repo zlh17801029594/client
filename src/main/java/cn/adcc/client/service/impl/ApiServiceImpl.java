@@ -9,6 +9,7 @@ import cn.adcc.client.enums.UserApiStatusEnum;
 import cn.adcc.client.exception.BusinessException;
 import cn.adcc.client.repository.ApiRepository;
 import cn.adcc.client.service.*;
+import cn.adcc.client.sso.SsoUser;
 import cn.adcc.client.utils.ConvertUtils;
 import cn.adcc.client.utils.CopyUtil;
 import cn.adcc.client.utils.EmptyUtils;
@@ -39,6 +40,8 @@ public class ApiServiceImpl implements ApiService {
     private UserService userService;
     @Autowired
     private UserApiService userApiService;
+    @Autowired
+    private SsoUserService ssoUserService;
 
     private Api save(ApiDto apiDto) {
         String url = apiDto.getUrl();
@@ -556,6 +559,14 @@ public class ApiServiceImpl implements ApiService {
         return apiOptional.map(api -> CopyUtil.copy(api, ApiDto.class)).orElse(null);
     }
 
+    @Override
+    public List<ApiDto> findApisByType() {
+        SsoUser ssoUser = ssoUserService.getSsoUser();
+        int sensitiveLevel = ssoUser.getSensitiveLevel();
+        List<Api> apis = apiRepository.findByTypeTrueAndStatusAndSensitiveNumLessThanEqual(ApiStatusEnum.ON.getCode(), sensitiveLevel);
+        return CopyUtil.copyList(apis, ApiDto.class);
+    }
+
     private void convert(Schema schema, Map<String, Definition> definitionMap) {
         String type = schema.getType();
         String ref = schema.getRef();
@@ -565,11 +576,15 @@ public class ApiServiceImpl implements ApiService {
             }
         } else {
             if (ref != null) {
-                schema.setType(Type.OBJECT);
+                // 弃用link
+                /*schema.setType(Type.OBJECT);
                 ref = getDefinition(ref);
                 schema.setRef(ref);
                 Definition definition = definitionMap.get(ref);
-                schema.setLink(definition);
+                schema.setLink(definition);*/
+                ref = getDefinition(ref);
+                Definition definition = definitionMap.get(ref);
+                BeanUtils.copyProperties(definition, schema);
             }
         }
     }
@@ -601,15 +616,116 @@ public class ApiServiceImpl implements ApiService {
         otherInfoView.setParameters(apiParaDetailsList);
 
         Schema result = otherInfo.getResult();
+        // result原json
+        otherInfoView.setResult1(result);
+        // result转化example样例json
         Object value = null;
         if (result != null) {
             value = tranSchema(result);
         }
         otherInfoView.setResult(value);
+        // result转化description描述map
+        Map<String, String> descMap = new HashMap<>();
+        if (result != null) {
+            tranSchema2DescMap(null, result, descMap);
+        }
+        otherInfoView.setResultDesc(descMap);
         return otherInfoView;
     }
 
+    private void tranSchema2DescMap(String propertyName, Schema schema, Map<String, String> descMap) {
+        String type = schema.getType();
+        Schema items = schema.getItems();
+        // 描述信息
+        String description = schema.getDescription();
+        if (type != null) {
+            if (Type.INT.equalsIgnoreCase(type) ||
+                    Type.STRING.equalsIgnoreCase(type) ||
+                    Type.BOOLEAN.equalsIgnoreCase(type)) {
+                if (propertyName != null) {
+                    descMap.put(propertyName, description);
+                }
+            } else if (Type.OBJECT.equalsIgnoreCase(type)) {
+                /*循环转换schemas*/
+                Map<String, Schema> schemas = schema.getProperties();
+                if (schemas != null) {
+                    schemas.keySet()
+                            .forEach(propertyNameTemp -> {
+                                tranSchema2DescMap(propertyNameTemp, schemas.get(propertyNameTemp), descMap);
+                            });
+                }
+            } else if (Type.ARRAY.equalsIgnoreCase(type)) {
+                /*递归转换items*/
+                tranSchema2DescMap(null, items, descMap);
+            }
+        }
+    }
+
     private Object tranSchema(Schema schema) {
+        String type = schema.getType();
+        String format = schema.getFormat();
+        Schema items = schema.getItems();
+        // 兼容非基础类型样例
+        Object example = schema.getExample();
+        // 弃用link
+        Definition link = schema.getLink();
+        if (type != null) {
+            if (Type.INT.equalsIgnoreCase(type)) {
+                /*数字类型*/
+                if (example != null) {
+                    return example;
+                } else {
+                    return 0;
+                }
+            } else if (Type.STRING.equalsIgnoreCase(type)) {
+                if (example != null) {
+                    return example;
+                } else {
+                    if (Format.DATETIME.equalsIgnoreCase(format)) {
+                        /*时间类型*/
+                        return new Timestamp(System.currentTimeMillis());
+                    } else {
+                        /*普通字符串*/
+                        return "string";
+                    }
+                }
+            } else if (Type.BOOLEAN.equalsIgnoreCase(type)) {
+                /*布尔类型*/
+                if (example != null) {
+                    return example;
+                } else {
+                    return true;
+                }
+            } else if (Type.OBJECT.equalsIgnoreCase(type)) {
+                /*循环转换schemas*/
+                Map<String, Object> objSchema = new HashMap<>();
+                Map<String, Schema> schemas = schema.getProperties();
+                if (schemas != null) {
+                    schemas.keySet()
+                            .forEach(propertyName -> {
+                                objSchema.put(propertyName, tranSchema(schemas.get(propertyName)));
+                            });
+                } else {
+                    // 兼容Map集合加example情况
+                    if (example != null) {
+                        return example;
+                    }
+                }
+                return objSchema;
+            } else if (Type.ARRAY.equalsIgnoreCase(type)) {
+                /*递归转换items*/
+                Object item = tranSchema(items);
+                // 兼容ist集合加example情况
+                if (item instanceof Map && ((Map) item).isEmpty() && example != null) {
+                    return example;
+                }
+                return Collections.singletonList(item);
+            }
+        }
+        return null;
+    }
+
+    private Object tranSchema_bak(Schema schema) {
         String type = schema.getType();
         String format = schema.getFormat();
         Schema items = schema.getItems();

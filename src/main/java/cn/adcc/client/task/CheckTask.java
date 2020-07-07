@@ -47,7 +47,7 @@ public class CheckTask {
     @Autowired
     private SsoConfig ssoConfig;
 
-    @Scheduled(cron = "${task.cron:0 */5 * * * *}")
+//    @Scheduled(cron = "${task.cron:0 */5 * * * *}")
     public void checkApply() {
         try {
             log.debug("[任务][检查申请] 开始");

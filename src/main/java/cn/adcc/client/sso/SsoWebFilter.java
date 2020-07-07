@@ -83,12 +83,12 @@ public class SsoWebFilter extends HttpServlet implements Filter {
             }
             try {
                 String encodeSessionId = URLEncoder.encode(sessionid, "UTF-8");
-                String url = ssoServer + "/loginCheck?" + Constant.SSO_SESSIONID + "=" + encodeSessionId;
+                /*String url = ssoServer + "/loginCheck?" + Constant.SSO_SESSIONID + "=" + encodeSessionId;
                 String content = SsoUtils.doGet(url);
                 if (!SsoUtils.isEmpty(content)) {
                     ssoUser = SsoUtils.readValue(content, SsoUser.class);
-                }
-                /*if (encodeSessionId.equals("1")) {
+                }*/
+                if (encodeSessionId.equals("1")) {
                     ssoUser = new SsoUser();
                     ssoUser.setUsername("admin");
                     ssoUser.setPermission("ADMIN");
@@ -97,7 +97,7 @@ public class SsoWebFilter extends HttpServlet implements Filter {
                     ssoUser.setUsername("test");
                     ssoUser.setPermission("TEST");
                     ssoUser.setSensitiveLevel(0);
-                }*/
+                }
             } catch (Exception e) {
                 logger.error("exception in loginCheck", e);
                 res.setContentType("application/json;charset=UTF-8");

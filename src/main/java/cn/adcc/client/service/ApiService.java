@@ -58,4 +58,7 @@ public interface ApiService {
 
     /*根据id查询接口局部信息(新建申请需要)*/
     ApiDto findApiById(Long id);
+
+    /*根据类型返回接口列表*/
+    List<ApiDto> findApisByType();
 }

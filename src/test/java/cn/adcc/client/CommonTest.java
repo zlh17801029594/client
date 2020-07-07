@@ -3,12 +3,10 @@ package cn.adcc.client;
 import org.junit.jupiter.api.Test;
 import org.springframework.stereotype.Component;
 
+import javax.validation.constraints.Null;
 import java.sql.Timestamp;
 import java.text.SimpleDateFormat;
-import java.util.Date;
-import java.util.HashSet;
-import java.util.Set;
-import java.util.UUID;
+import java.util.*;
 
 @Component
 public class CommonTest extends ClientApplicationTests {
@@ -54,4 +52,77 @@ public class CommonTest extends ClientApplicationTests {
         long uuid = UUID.randomUUID().timestamp();
         System.out.println(uuid);
     }
+
+    @Test
+    void testReplace() {
+        String str = "aabcbabac";
+        // bcbbc
+        System.out.println(str.replace("a", ""));
+        System.out.println(str);
+        // abcbabac
+        System.out.println(str.replaceFirst("a", ""));
+    }
+
+    @Test
+    void listRemoveIndex() {
+        // 不能使用remove(index)
+        // List<String> strs = Arrays.asList("one", "two", "three");
+        List<String> strs = new ArrayList<>();
+        strs.add("one");
+        strs.add("two");
+        System.out.println(strs.remove(0));
+        System.out.println(strs);
+    }
+
+    @Test
+    void and() {
+        boolean flag1 = true;
+        boolean flag2 = false;
+        if (!flag1 && flag2) {
+            System.out.println("one success");
+        }
+        if ((!flag1) && flag2) {
+            System.out.println("two success");
+        }
+    }
+
+    @Test
+    void splitTimes() {
+        String str1 = "a->b->c";
+        String str2 = "a->b";
+        String str3 = "a";
+        String SPLIT_SIGN = "->";
+        // [a, b->c]
+        System.out.println(Arrays.toString(str1.split(SPLIT_SIGN, 2)));
+        // [a, b]
+        System.out.println(Arrays.toString(str2.split(SPLIT_SIGN, 2)));
+        // [a]
+        System.out.println(Arrays.toString(str3.split(SPLIT_SIGN, 2)));
+    }
+
+    @Test
+    void addAll() {
+        List<String> stringList1 = new ArrayList<>();
+        stringList1.add("one");
+        stringList1.add("two");
+        System.out.println(stringList1);
+        List<String> stringList2 = new ArrayList<>();
+        stringList2.add("three");
+        System.out.println(stringList2);
+        stringList1.addAll(stringList2);
+        System.out.println(stringList1);
+    }
+
+    @Test
+    void type() {
+        Object map = new HashMap<>();
+        Object i = null;
+        boolean a = map instanceof Map;
+        boolean b = map instanceof HashMap;
+        boolean c = map instanceof LinkedHashMap;
+        boolean d = i instanceof Integer;
+        boolean e = i instanceof Null;
+        System.out.println(String.format("a:%s,b:%s,c:%s,d:%s,e:%s", a, b, c, d, e));
+    }
+
 }
