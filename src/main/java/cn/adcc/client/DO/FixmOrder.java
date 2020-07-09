@@ -10,7 +10,7 @@ import javax.persistence.*;
 @Entity
 @DynamicInsert
 @DynamicUpdate
-@Table(catalog = "fixm")
+@Table(catalog = "integrate")
 public class FixmOrder {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
