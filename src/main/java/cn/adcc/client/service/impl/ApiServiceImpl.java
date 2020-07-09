@@ -560,6 +560,22 @@ public class ApiServiceImpl implements ApiService {
     }
 
     @Override
+    public List<ApiDto> findApisByType1() {
+        SsoUser ssoUser = ssoUserService.getSsoUser();
+        int sensitiveLevel = ssoUser.getSensitiveLevel();
+        List<Api> apis = apiRepository.findByTypeTrueAndStatusAndSensitiveNumLessThanEqual(ApiStatusEnum.ON.getCode(), sensitiveLevel);
+        return apis.stream().map(api -> {
+            ApiDto apiDto = CopyUtil.copy(api, ApiDto.class);
+            ApiDetailsDto apiDetailsDto = CopyUtil.copy(api.getApiDetails(), ApiDetailsDto.class);
+            apiDto.setApiDetailsDto(apiDetailsDto);
+            if (apiDetailsDto.getOtherInfo() != null) {
+                apiDetailsDto.setOtherInfoView(tranOtherInfo(apiDetailsDto.getOtherInfo()));
+            }
+            return apiDto;
+        }).collect(Collectors.toList());
+    }
+
+    @Override
     public List<ApiDto> findApisByType() {
         SsoUser ssoUser = ssoUserService.getSsoUser();
         int sensitiveLevel = ssoUser.getSensitiveLevel();

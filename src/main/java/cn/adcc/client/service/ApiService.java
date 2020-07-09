@@ -61,4 +61,7 @@ public interface ApiService {
 
     /*根据类型返回接口列表*/
     List<ApiDto> findApisByType();
+
+    /*根据类型返回接口列表详情*/
+    List<ApiDto> findApisByType1();
 }

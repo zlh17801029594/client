@@ -69,6 +69,12 @@ public class ApiController {
         return ResultUtil.success(apiDtos);
     }
 
+    @GetMapping("/type1")
+    public Result findByUserAndType1() {
+        List<ApiDto> apiDtos = apiService.findApisByType1();
+        return ResultUtil.success(apiDtos);
+    }
+
     @GetMapping("/{id}")
     public Result findById(@PathVariable("id") Long id) {
         return ResultUtil.success(apiService.findById(id));
