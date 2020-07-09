@@ -11,6 +11,7 @@ import java.util.Date;
 @Entity
 @DynamicInsert
 @DynamicUpdate
+@Table(catalog = "fixm")
 public class FixmLogic {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)

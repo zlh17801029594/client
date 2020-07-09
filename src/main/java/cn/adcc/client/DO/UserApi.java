@@ -17,7 +17,7 @@ import java.util.Date;
 @ToString(exclude = {"user", "api"})
 @JsonIgnoreProperties(value = {"user", "api"})
 @Entity
-@Table(name = "user_api")
+@Table(catalog = "privilege", name = "user_api")
 @DynamicInsert
 @DynamicUpdate
 @IdClass(value = UserApiKey.class)

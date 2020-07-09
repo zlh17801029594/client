@@ -19,7 +19,7 @@ import java.util.Set;
 @ToString(exclude = {"user", "applyDetailss"})
 @JsonIgnoreProperties(value = {"user", "applyDetailss"})
 @Entity
-@Table(name = "apply")
+@Table(catalog = "privilege", name = "apply")
 @SQLDelete(sql = "update apply set del_flag = 1 where id = ?")
 @Where(clause = "del_flag != 1")
 @DynamicInsert

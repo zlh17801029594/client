@@ -17,7 +17,7 @@ import java.util.Set;
 @ToString(exclude = {"apiDetails", "userApis", "applyDetailss"})
 @JsonIgnoreProperties(value = {"apiDetails", "userApis", "applyDetailss"})
 @Entity
-@Table(name = "api")
+@Table(catalog = "privilege", name = "api")
 //后续探索@SecondaryTable作用
 //@SecondaryTable(name = "api_details", pkJoinColumns = @PrimaryKeyJoinColumn(name = "apiId", referencedColumnName = "id"))
 @SQLDelete(sql = "update api set del_flag = 1 where id = ?")

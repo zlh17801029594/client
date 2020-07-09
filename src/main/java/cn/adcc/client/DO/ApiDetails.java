@@ -15,7 +15,7 @@ import javax.persistence.*;
 @ToString(exclude = {"api"})
 @JsonIgnoreProperties(value = {"api"})
 @Entity
-@Table(name = "api_details")
+@Table(catalog = "privilege", name = "api_details")
 @DynamicInsert
 @DynamicUpdate
 public class ApiDetails {
