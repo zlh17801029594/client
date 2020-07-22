@@ -6,11 +6,13 @@ import cn.adcc.client.DTO.FixmLogicDto;
 import cn.adcc.client.DTO.FixmOrderDto;
 import cn.adcc.client.DTO.FixmProp;
 import cn.adcc.client.exception.BusinessException;
+import cn.adcc.client.exception.ValidatorFixmException;
 import cn.adcc.client.repository.FixmLogicRepository;
 import cn.adcc.client.service.FixmLogicService;
 import cn.adcc.client.service.FixmOrderService;
 import cn.adcc.client.utils.BeanFindNullUtils;
 import cn.adcc.client.utils.FixmUtils;
+import cn.adcc.fixm.convertinterface.Validator;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -18,6 +20,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.util.StringUtils;
 
+import java.math.BigInteger;
 import java.util.*;
 import java.util.stream.Collectors;
 
@@ -30,6 +33,10 @@ public class FixmLogicServiceImpl implements FixmLogicService {
 
     @Autowired
     private FixmOrderService fixmOrderService;
+
+    private Validator validator = new Validator();
+
+    private static final String INTEGRATE_DB = "INTEGRATE";
 
     private static final String SPLIT_SIGN = "->";
 
@@ -309,8 +316,29 @@ public class FixmLogicServiceImpl implements FixmLogicService {
         FixmOrderDto fixmOrderDto = this.buildLogic2fatherOrder(fixmLogicDto);
         log.info("[更新节点排序数据], {}", fixmOrderDto);
         fixmOrderService.save(fixmOrderDto);
+
+        List<String> gen = validator.gen(version, INTEGRATE_DB, "INTEGRATE_FLIGHT_INFO_TEST");
+        if (gen != null && !gen.isEmpty()) {
+            String xml = gen.get(0);
+            // xsd_file_path: xsd文件路径
+            boolean flag = false;
+            try {
+                flag = validator.validate_xml("./xsd/core4.1/Fixm.xsd", xml);
+                if (flag) {
+                    return this.convert2fixmLogicDto(fixmLogic);
+                } else {
+                    throw new ValidatorFixmException(606, "");
+                }
+            } catch (Exception e) {
+                e.printStackTrace();
+                String errorMessage = e.getMessage();
+                throw new ValidatorFixmException(606, errorMessage);
+            }
+        }
+        throw new ValidatorFixmException(606, "没有测试数据");
+
         // (5).转换fixmLogicDto返回
-        return this.convert2fixmLogicDto(fixmLogic);
+        // return this.convert2fixmLogicDto(fixmLogic);
     }
 
     // 更新节点全部属性接口(此时isnode不能为null)  即更新叶子节点
@@ -370,12 +398,29 @@ public class FixmLogicServiceImpl implements FixmLogicService {
             fixmLogicDto.setXsdnode(newXsdnode);
         }
         // (3).更新节点其他属性
-        BeanUtils.copyProperties(fixmLogicDto, fixmLogic, "id");
+        // copy剔除testvalue，testvalue用于更新flight_info_test数据表。
+        BeanUtils.copyProperties(fixmLogicDto, fixmLogic, "id", "testvalue");
         fixmLogicRepository.save(fixmLogic);
         if (!fixmLogics.isEmpty()) {
             log.info("[清理FixmLogic脏数据], {}", fixmLogics);
             fixmLogicRepository.deleteAll(fixmLogics);
         }
+        if (!StringUtils.isEmpty(fixmLogicDto.getSrcColumn())) {
+            this.updateFlightInfo(fixmLogicDto.getSrcColumn(), fixmLogicDto.getTestvalue());
+        }
+    }
+
+    private void updateFlightInfo(String srcColumn, Object testValue) {
+        Map<String, Object> firstFlightInfo = this.findFirstFlightInfo();
+        if (!firstFlightInfo.isEmpty()) {
+            Long id = ((BigInteger)firstFlightInfo.get("id")).longValue();
+            log.info("[更新flight_info_test] {}->{}", srcColumn, testValue);
+            fixmLogicRepository.updateColumn(srcColumn, testValue, id);
+        }
+    }
+
+    private void validateFixm() {
+
     }
 
     // 更新name接口(此时isnode传不传值都为null)
@@ -538,6 +583,16 @@ public class FixmLogicServiceImpl implements FixmLogicService {
         // 1.同级节点个数为0[剔除该条件，通过前端判断删除，不管后端逻辑]、
         // 2.父节点不为空（空代表根节点）
         return this.saveFather(fixmLogicDto);
+    }
+
+    @Override
+    public List<String> findFlightInfoColumns() {
+        return fixmLogicRepository.findIntegrateFlightInfoColumns();
+    }
+
+    @Override
+    public Map<String, Object> findFirstFlightInfo() {
+        return fixmLogicRepository.findFirstIntegrateFlightInfo();
     }
 
     private FixmLogicDto saveFather(FixmLogicDto fixmLogicDto) {

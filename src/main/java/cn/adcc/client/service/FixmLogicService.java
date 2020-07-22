@@ -29,4 +29,8 @@ public interface FixmLogicService {
     FixmLogicDto updateFatherXsdnode(FixmLogicDto fixmLogicDto);
 
     FixmLogicDto delete(FixmLogicDto fixmLogicDto);
+
+    List<String> findFlightInfoColumns();
+
+    Map<String, Object> findFirstFlightInfo();
 }

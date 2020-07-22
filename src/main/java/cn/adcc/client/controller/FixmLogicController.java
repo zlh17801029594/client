@@ -62,4 +62,14 @@ public class FixmLogicController {
         FixmLogicDto fatherFixmLogicDto = fixmLogicService.delete(fixmLogicDto);
         return ResultUtil.success(fatherFixmLogicDto);
     }
+
+    @GetMapping("/keys")
+    public Result findKeys(@PathVariable("version") String version) {
+        return ResultUtil.success(fixmLogicService.findFlightInfoColumns());
+    }
+
+    @GetMapping("/map")
+    public Result findMap(@PathVariable("version") String version) {
+        return ResultUtil.success(fixmLogicService.findFirstFlightInfo());
+    }
 }

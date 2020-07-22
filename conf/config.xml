@@ -1,0 +1,29 @@
+
+<config>
+    <localip>192.168.243.203</localip>
+    <port>49999</port>
+    <!--<xsdpath>./xsd/schemas/applications/fficemessage/FficeMessage.xsd</xsdpath>-->
+    <xsdpath>./xsd/core/Fixm.xsd</xsdpath>
+    <extensionpath>./extension/</extensionpath>
+    <xmlpath>./xsd/</xmlpath>
+    <uuid>true</uuid>
+    <message>
+        <const>xmlns:fb="http://www.fixm.aero/base/4.1" xmlns:xlink="http://www.w3.org/1999/xlink" xmlns:fx="http://www.fixm.aero/flight/4.1" xmlns:mesg="http://www.fixm.aero/messaging/4.1" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"</const>
+    </message>
+    <mqrcv>
+        <connecturl>failover://(tcp://192.168.243.121:51616)</connecturl>
+        <username>admin</username>
+        <password>admin</password>
+        <type>queue</type>
+        <name>change</name>
+        <transtype>TEXT</transtype>
+    </mqrcv>
+    <mqsnd>
+        <connecturl>failover://(tcp://192.168.243.121:51616)</connecturl>
+        <username>default</username>
+        <password>default</password>
+        <type>queue</type>
+        <name>fixm</name>
+        <transtype>TEXT</transtype>
+    </mqsnd>
+</config>

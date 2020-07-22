@@ -1,0 +1,5 @@
+<config>
+    <core4.1>xmlns:fb="http://www.fixm.aero/base/4.1" xmlns:xlink="http://www.w3.org/1999/xlink" xmlns:fx="http://www.fixm.aero/flight/4.1" xmlns:mesg="http://www.fixm.aero/messaging/4.1" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"</core4.1>
+    <core4.2>xmlns:fb="http://www.fixm.aero/base/4.2" xmlns:xlink="http://www.w3.org/1999/xlink" xmlns:fx="http://www.fixm.aero/flight/4.2" xmlns:mesg="http://www.fixm.aero/messaging/4.2" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"</core4.2>
+    <FficeFFP>xmlns:fb="http://www.fixm.aero/base/4.2" xmlns:xlink="http://www.w3.org/1999/xlink" xmlns:fx="http://www.fixm.aero/flight/4.2" xmlns:mesg="http://www.fixm.aero/messaging/4.2" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"</FficeFFP>
+</config>

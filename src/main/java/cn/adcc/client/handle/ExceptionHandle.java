@@ -14,6 +14,7 @@ public class ExceptionHandle {
 
     @ExceptionHandler(value = Exception.class)
     public Result handle(Exception e) throws Exception {
+//         e.printStackTrace();
         if (e instanceof MSAPiException) {
             return ResultUtil.error(((MSAPiException) e).getCode(), e.getMessage());
         } else if (e instanceof MSUserApiException) {
@@ -28,6 +29,8 @@ public class ExceptionHandle {
             return ResultUtil.error(((MSApplyException) e).getCode(), e.getMessage());
         } else if (e instanceof MissingServletRequestParameterException) {
             return ResultUtil.error(0, e.getMessage());
+        } else if (e instanceof ValidatorFixmException) {
+            return ResultUtil.error(((ValidatorFixmException) e).getCode(), e.getMessage());
         } else {
             log.error("其他异常", e);
             return ResultUtil.error(-1, "未知错误");
