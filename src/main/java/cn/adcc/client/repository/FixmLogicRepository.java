@@ -17,14 +17,19 @@ public interface FixmLogicRepository extends JpaRepository<FixmLogic, Long> {
 
     List<FixmLogic> findAllByVersionAndXsdnode(String version, String xsdnode);
 
+    // 获取列名list
     @Query(value = "select column_name from information_schema.columns WHERE TABLE_SCHEMA = 'integrate' AND TABLE_NAME='integrate_flight_info_test'", nativeQuery = true)
     List<String> findIntegrateFlightInfoColumns();
 
+    // 获取第一条数据
     @Query(value = "SELECT * FROM integrate.integrate_flight_info_test LIMIT 1", nativeQuery = true)
     Map<String, Object> findFirstIntegrateFlightInfo();
 
-    @Transactional
-    @Modifying(clearAutomatically = true)
-    @Query(value = "update Integrate.IntegrateFlightInfoTest set :columnName = :columnValue where id = :id")
-    void updateColumn(@Param("columnName") String columnName, @Param("columnValue") Object testValue, @Param("id") Long id);
+    // 获取列属性详情
+    @Query(value = "DESC integrate.integrate_flight_info_test", nativeQuery = true)
+    List<Map<String, String>> findIntegrateFlightInfoColumnsDesc();
+
+    // 获取fixm version
+    @Query(value = "SELECT version FROM integrate.fixm_logic GROUP BY version", nativeQuery = true)
+    List<String> findFixmVersions();
 }

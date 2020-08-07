@@ -22,7 +22,7 @@ class FixmLogicRepositoryTest extends ClientApplicationTests {
         Map<String, String> map = fixmLogicRepository.findFirstIntegrateFlightInfo();
         System.out.println(map);*/
         Validator validator = new Validator();
-        List<String> gen = validator.gen("core4.1", "INTEGRATE", "INTEGRATE_FLIGHT_INFO_TEST");
+        List<String> gen = validator.gen(null, "core4.1", "INTEGRATE", "INTEGRATE_FLIGHT_INFO_TEST");
         if (gen != null && !gen.isEmpty()) {
             String xml = gen.get(0);
             // xsd_file_path: xsd文件路径

@@ -2,9 +2,12 @@ package cn.adcc.client.service;
 
 import cn.adcc.client.ClientApplicationTests;
 import cn.adcc.client.DTO.FixmLogicDto;
-import org.junit.jupiter.api.Test;
+import cn.adcc.client.utils.ColumnField;
+import org.junit.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
+
+import java.util.List;
 
 @Component
 class FixmLogicServiceTest extends ClientApplicationTests {
@@ -26,5 +29,11 @@ class FixmLogicServiceTest extends ClientApplicationTests {
         fixmLogicVO.setIsvalid(true);
         FixmLogicDto fixmLogicDto = fixmLogicService.add(fixmLogicVO);
         System.out.println(fixmLogicDto);*/
+    }
+
+    @Test
+    void columnField() {
+        List<ColumnField> flightInfoColumnsDesc = fixmLogicService.findFlightInfoColumnsDesc();
+        System.out.println(flightInfoColumnsDesc);
     }
 }

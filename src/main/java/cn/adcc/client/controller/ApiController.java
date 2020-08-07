@@ -69,7 +69,7 @@ public class ApiController {
         return ResultUtil.success(apiDtos);
     }
 
-    @GetMapping("/type1")
+    @GetMapping("/list")
     public Result findByUserAndType1() {
         List<ApiDto> apiDtos = apiService.findApisByType1();
         return ResultUtil.success(apiDtos);

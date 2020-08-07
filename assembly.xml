@@ -1,0 +1,55 @@
+<assembly>
+	<!-- 打包文件后缀 -->
+	<id>bin</id>
+	<formats>
+		<!-- 打包格式 -->
+		<format>zip</format>
+	</formats>
+	
+	<dependencySets>  
+        <dependencySet>  
+            <!-- 不使用项目的artifact，第三方jar不要解压，打包进zip文件的lib目录 -->  
+            <useProjectArtifact>false</useProjectArtifact>  
+            <outputDirectory>lib</outputDirectory>  
+            <unpack>false</unpack>  
+        </dependencySet>  
+    </dependencySets> 
+    
+	<fileSets>
+		<!-- 打包文件拷贝 -->
+		<fileSet>
+			<directory>/</directory>
+			<outputDirectory>/</outputDirectory>
+			<includes>
+				<include>run.bat</include>
+				<include>start.sh</include>
+				<include>stop.sh</include>
+			</includes>
+		</fileSet>	
+		<fileSet>
+			<directory>/conf</directory>
+			<outputDirectory>/conf</outputDirectory>
+		</fileSet>
+		<fileSet>
+			<directory>/extension</directory>
+			<outputDirectory>/extension</outputDirectory>
+		</fileSet>
+		<fileSet>
+			<directory>/xsd</directory>
+			<outputDirectory>/xsd</outputDirectory>
+		</fileSet>
+		
+		<fileSet>
+			<directory>/lib</directory>
+			<outputDirectory>/lib</outputDirectory>
+		</fileSet>
+		
+		<fileSet>
+			<directory>target</directory>
+			<outputDirectory>/</outputDirectory>
+			<includes>
+				<include>client-0.0.1-SNAPSHOT.jar</include>
+			</includes>
+		</fileSet>				
+	</fileSets>
+</assembly>

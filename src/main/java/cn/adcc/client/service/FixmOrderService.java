@@ -19,4 +19,6 @@ public interface FixmOrderService {
     void updateXsdnode(FixmOrderDto fixmOrderDto);
 
     void del(String version, String xsdnode);
+
+    void deleteByVersion(String version);
 }

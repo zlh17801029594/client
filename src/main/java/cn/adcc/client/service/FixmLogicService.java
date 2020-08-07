@@ -1,6 +1,8 @@
 package cn.adcc.client.service;
 
 import cn.adcc.client.DTO.FixmLogicDto;
+import cn.adcc.client.utils.ColumnField;
+import cn.adcc.client.utils.XsdFile;
 
 import java.util.*;
 
@@ -33,4 +35,13 @@ public interface FixmLogicService {
     List<String> findFlightInfoColumns();
 
     Map<String, Object> findFirstFlightInfo();
+
+    // 构建下拉字段详情
+    List<ColumnField> findFlightInfoColumnsDesc();
+
+    // 获取fixm versions
+    List<String> findFixmVersions();
+
+    // 删除指定版本的fixm数据
+    void deleteByVersion(String version);
 }

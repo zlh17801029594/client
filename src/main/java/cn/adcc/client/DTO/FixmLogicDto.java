@@ -41,6 +41,9 @@ public class FixmLogicDto {
     // 新父节点property排序
     private String newPropertyOrder;
 
+    // 拖拽时删除节点
+    private String deleteXsdnode;
+
     // 是否保留父级空目录节点
     private Boolean saveFather = false;
 
@@ -50,7 +53,7 @@ public class FixmLogicDto {
 
     private String explain;
 
-    private String testvalue;
+    private Object testvalue;
 
     @NotNull //新增
     private Boolean isvalid;

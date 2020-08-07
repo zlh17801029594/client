@@ -172,6 +172,16 @@ public class FixmOrderServiceImpl implements FixmOrderService {
 
     }
 
+    @Transactional
+    @Override
+    public void deleteByVersion(String version) {
+        List<FixmOrder> allByVersion = fixmOrderRepository.findAllByVersion(version);
+        if (!allByVersion.isEmpty()) {
+            log.info("[删除版本：'{}'全部节点排序数据]", version);
+            fixmOrderRepository.deleteAll(allByVersion);
+        }
+    }
+
     private String convertOrder(String order) {
         if (StringUtils.hasLength(order)) {
             order = order.trim();
