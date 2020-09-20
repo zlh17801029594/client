@@ -13,7 +13,7 @@ public class BusinessException extends RuntimeException {
     }
 
     public BusinessException() {
-        super("数据不一致，请重试");
+        super("数据不一致，请刷新后重试");
         this.code = ResultEnum.BUSINESS_ERROR.getCode();
     }
 }

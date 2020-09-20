@@ -1,6 +1,9 @@
 package cn.adcc.client.service;
 
 import cn.adcc.client.DTO.FixmLogicDto;
+import cn.adcc.client.DTO.FixmLogicVersion;
+import cn.adcc.client.VO.FixmLogicVO;
+import cn.adcc.client.VO.SubversionCheckVO;
 import cn.adcc.client.utils.ColumnField;
 import cn.adcc.client.utils.XsdFile;
 
@@ -19,18 +22,19 @@ public interface FixmLogicService {
     /**
      * 增加 叶子结点 or 多层节点
      * 1.可能是增加node，也可能是增加property
-     * @param fixmLogicDto
+     * @param version
+     * @param fixmLogicVO
      * @return
      */
-    FixmLogicDto add(FixmLogicDto fixmLogicDto);
+    void add(String version, FixmLogicVO fixmLogicVO);
 
-    void update(FixmLogicDto fixmLogicDto);
+    void update(String version, FixmLogicVO fixmLogicVO);
 
-    void updateName(FixmLogicDto fixmLogicDto);
+    void updateName(String version, FixmLogicVO fixmLogicVO);
 
-    FixmLogicDto updateFatherXsdnode(FixmLogicDto fixmLogicDto);
+    void updateFatherXsdnode(String version, FixmLogicVO fixmLogicVO);
 
-    FixmLogicDto delete(FixmLogicDto fixmLogicDto);
+    void delete(String version, FixmLogicVO fixmLogicVO);
 
     List<String> findFlightInfoColumns();
 
@@ -44,4 +48,24 @@ public interface FixmLogicService {
 
     // 删除指定版本的fixm数据
     void deleteByVersion(String version);
+
+    List<FixmLogicVersion> findFixmSubversions();
+
+    /**
+     * 更新子版本(用户勾选子版本节点)
+     * 1.传递大版本、子版本、用户勾选的xsdnodes序列(xsdnode:树节点全路径)
+     * @param version
+     * @param subversion
+     * @param chkXsdnodes
+     * @param cancelChkXsdnodes
+     */
+    void updateSubversion(String version, String subversion, List<String> chkXsdnodes, List<String> cancelChkXsdnodes);
+
+    /**
+     * 删除子版本
+     * 1.大版本、子版本
+     * @param version
+     * @param subversion
+     */
+    void deleteSubversion(String version, String subversion);
 }

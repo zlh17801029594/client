@@ -32,4 +32,6 @@ public interface FixmLogicRepository extends JpaRepository<FixmLogic, Long> {
     // 获取fixm version
     @Query(value = "SELECT version FROM integrate.fixm_logic GROUP BY version", nativeQuery = true)
     List<String> findFixmVersions();
+
+    List<FixmLogic> findAllByVersionAndXsdnodeIn(String version, List<String> xsdnodes);
 }

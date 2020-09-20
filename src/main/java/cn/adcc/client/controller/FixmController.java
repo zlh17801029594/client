@@ -23,6 +23,11 @@ public class FixmController {
         return ResultUtil.success(fixmLogicService.findFixmVersions());
     }
 
+    @GetMapping("/subversions")
+    public Result findFixmSubversions() {
+        return ResultUtil.success(fixmLogicService.findFixmSubversions());
+    }
+
     /**
      * 删除指定版本数据[fixmlogic数据、fixmorder数据、删除验证文件包、删除props]
      * @param version

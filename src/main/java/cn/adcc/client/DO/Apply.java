@@ -24,6 +24,7 @@ import java.util.Set;
 @Where(clause = "del_flag != 1")
 @DynamicInsert
 @DynamicUpdate
+@NamedEntityGraph(name = "Apply.Graph", attributeNodes = {@NamedAttributeNode("applyDetailss")})
 public class Apply {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)

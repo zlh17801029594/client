@@ -3,8 +3,11 @@ package cn.adcc.client.service.impl;
 import cn.adcc.client.DO.FixmLogic;
 import cn.adcc.client.DO.FixmOrder;
 import cn.adcc.client.DTO.FixmLogicDto;
+import cn.adcc.client.DTO.FixmLogicVersion;
 import cn.adcc.client.DTO.FixmOrderDto;
 import cn.adcc.client.DTO.FixmProp;
+import cn.adcc.client.VO.FixmLogicVO;
+import cn.adcc.client.VO.SubversionCheckVO;
 import cn.adcc.client.exception.BusinessException;
 import cn.adcc.client.repository.FixmLogicRepository;
 import cn.adcc.client.service.FixmLogicService;
@@ -46,6 +49,8 @@ public class FixmLogicServiceImpl implements FixmLogicService {
     private List<FixmOrder> fixmOrders;
 
     {
+        // 静态变量初始化
+        // 场景一：
         routes = Arrays.asList(
                 "fx:Flight->fx:aircraft->fx:aircraftAddress",
                 "fx:Flight->fx:aircraft->fx:aircraftApproachCategory",
@@ -69,6 +74,7 @@ public class FixmLogicServiceImpl implements FixmLogicService {
                 "fx:Flight->fx:routeTrajectoryGroup->fx:ranked->fx:routeTrajectory->fx:element->fx:routeChange->fx:speed->fx:speed"
         );
 
+        // 场景二
         FixmOrder fixmOrder1 = new FixmOrder();
         fixmOrder1.setXsdnode("fx:Flight->fx:aircraft");
         fixmOrder1.setNodeOrder("fx:aircraftType->fx:capabilities->fx:aircraftAddress->fx:aircraftApproachCategory->fx:coloursAndMarkings->fx:extension->fx:formationCount->fx:registration->fx:wakeTurbulence");
@@ -171,9 +177,15 @@ public class FixmLogicServiceImpl implements FixmLogicService {
     public List<FixmLogicDto> list2tree(String version) {
         List<FixmLogicDto> fixmLogicDtos = new ArrayList<>();
         List<FixmLogic> fixmLogics = fixmLogicRepository.findAllByVersion(version);
-        fixmLogics.stream().forEach(fixmLogic -> {
-            String route = fixmLogic.getXsdnode();
-            this.recursionA(fixmLogicDtos, route, fixmLogic);
+        // 【兼容数据逻辑】，查询数据有重复
+        Map<String, FixmLogic> fixmLogicMap = new HashMap<>();
+        for (FixmLogic fixmLogic : fixmLogics) {
+            String xsdnode = fixmLogic.getXsdnode();
+            // 重复数据取第一条数据
+            fixmLogicMap.putIfAbsent(xsdnode, fixmLogic);
+        }
+        fixmLogicMap.keySet().forEach(xsdnode -> {
+            this.recursionA(fixmLogicDtos, xsdnode, fixmLogicMap.get(xsdnode));
         });
 //        fixmLogics.stream().map(FixmLogic::getXsdnode).forEach(item -> this.recursion(fixmNodes, item));
 //        routes.forEach(item -> this.recursion(fixmNodes, item));
@@ -210,8 +222,8 @@ public class FixmLogicServiceImpl implements FixmLogicService {
         }
     }
 
-    private void recursionA(List<FixmLogicDto> fixmLogicDtos, String route, FixmLogic fixmLogic) {
-        String[] split = route.split("->", 2);
+    private void recursionA(List<FixmLogicDto> fixmLogicDtos, String xsdnode, FixmLogic fixmLogic) {
+        String[] split = xsdnode.split("->", 2);
         String currentNodeName = split[0];
         FixmLogicDto fixmLogicDto = null;
         for (FixmLogicDto fixmLogicDto1 : fixmLogicDtos) {
@@ -226,10 +238,11 @@ public class FixmLogicServiceImpl implements FixmLogicService {
             fixmLogicDtos.add(fixmLogicDto);
             fixmLogicDto.setName(currentNodeName);
             // 目录isnode默认为true, isvalid为true
-            fixmLogicDto.setIsnode(true);
-            fixmLogicDto.setIsvalid(true);
+            // 调整：目录没有这些属性项，目录转化为节点时，前端再加上。
+            // fixmLogicDto.setIsnode(true);
+            // fixmLogicDto.setIsvalid(true);
         }
-        if (route.contains("->")) {
+        if (xsdnode.contains("->")) {
             if (fixmLogicDto.getChildren() == null) {
                 // 设置子list
                 List<FixmLogicDto> fixmLogicDtoChildren = new ArrayList<>();
@@ -240,9 +253,15 @@ public class FixmLogicServiceImpl implements FixmLogicService {
         } else {
             /**
              * 问题：
-             * 1.后者会覆盖前者（脏数据）
+             * 1.后者会覆盖前者（脏数据）ok 已解决(解决方式：提前对数据去重)
              */
             BeanUtils.copyProperties(fixmLogic, fixmLogicDto);
+            Set<String> subversions = Collections.emptySet();
+            String subversionStr = fixmLogic.getChildversion();
+            if (StringUtils.hasText(subversionStr)) {
+                subversions = new LinkedHashSet<>(Arrays.asList(StringUtils.tokenizeToStringArray(subversionStr, ",")));
+            }
+            fixmLogicDto.setSubversions(subversions);
         }
     }
 
@@ -279,20 +298,19 @@ public class FixmLogicServiceImpl implements FixmLogicService {
      * (3).新增节点
      * (4).保存父节点排序
      * (5).转换fixmLogicDto返回
-     * @param fixmLogicDto
+     * @param version
+     * @param fixmLogicVO
      * @return
      */
     @Override
     @Transactional
-    public FixmLogicDto add(FixmLogicDto fixmLogicDto) {
-        // 版本
-        String version = fixmLogicDto.getVersion();
+    public void add(String version, FixmLogicVO fixmLogicVO) {
         // 父节点
-        String fatherXsdnode = fixmLogicDto.getFatherXsdnode();
+        String fatherXsdnode = fixmLogicVO.getFatherXsdnode();
         // 节点名
-        String name = fixmLogicDto.getName();
+        String name = fixmLogicVO.getName();
         FixmProp fixmProp = FixmUtils.convert2fixmPropAdd(fatherXsdnode, name);
-        BeanUtils.copyProperties(fixmProp, fixmLogicDto, "fatherXsdnode", "name");
+        BeanUtils.copyProperties(fixmProp, fixmLogicVO);
         // 父节点前缀
         String fatherXsdnodePrefix = fixmProp.getFatherXsdnodePrefix();
         // 节点
@@ -306,45 +324,22 @@ public class FixmLogicServiceImpl implements FixmLogicService {
         this.validateName(version, fatherXsdnodePrefix, nodeName);
         // (3).新增节点
         FixmLogic fixmLogic = new FixmLogic();
-        BeanUtils.copyProperties(fixmLogicDto, fixmLogic, "id", "testvalue");
+        BeanUtils.copyProperties(fixmLogicVO, fixmLogic, "testvalue");
         // 转换xmlkey
         String xmlkey = this.convert2xmlKey(xsdnode);
-        fixmLogic.setXsdnode(xsdnode);
         fixmLogic.setXmlkey(xmlkey);
         fixmLogic.setIsproperty(!fixmLogic.getIsnode());
         fixmLogic.setSplitsign(SPLIT_SIGN);
+        fixmLogic.setVersion(version);
         fixmLogicRepository.save(fixmLogic);
         // (4).保存父节点排序
-        FixmOrderDto fixmOrderDto = this.buildLogic2fatherOrder(fixmLogicDto);
+        FixmOrderDto fixmOrderDto = this.buildLogic2fatherOrder(version, fixmLogicVO);
         log.info("[更新节点排序数据], {}", fixmOrderDto);
         fixmOrderService.save(fixmOrderDto);
         // 更新flight_info_test数据表
-        if (!StringUtils.isEmpty(fixmLogicDto.getSrcColumn())) {
-            this.updateFlightInfo(fixmLogicDto.getSrcColumn(), fixmLogicDto.getTestvalue());
+        if (!StringUtils.isEmpty(fixmLogicVO.getSrcColumn())) {
+            this.updateFlightInfo(fixmLogicVO.getSrcColumn(), fixmLogicVO.getTestvalue());
         }
-
-        /*List<String> gen = validator.gen(version, INTEGRATE_DB, "INTEGRATE_FLIGHT_INFO_TEST");
-        if (gen != null && !gen.isEmpty()) {
-            String xml = gen.get(0);
-            // xsd_file_path: xsd文件路径
-            boolean flag = false;
-            try {
-                flag = validator.validate_xml("./xsd/core4.1/Fixm.xsd", xml);
-                if (flag) {
-                    return this.convert2fixmLogicDto(fixmLogic);
-                } else {
-                    throw new ValidatorFixmException(606, "");
-                }
-            } catch (Exception e) {
-                e.printStackTrace();
-                String errorMessage = e.getMessage();
-                throw new ValidatorFixmException(606, errorMessage);
-            }
-        }
-        throw new ValidatorFixmException(606, "没有测试数据");*/
-
-        // (5).转换fixmLogicDto返回
-         return this.convert2fixmLogicDto(fixmLogic);
     }
 
     // 更新节点全部属性接口(此时isnode不能为null)  即更新叶子节点
@@ -366,13 +361,12 @@ public class FixmLogicServiceImpl implements FixmLogicService {
      * 2.对移动节点的现位置进行排序（父节点排序数据更新node/property序列）
      * 3.更新当前节点的排序数据xsdnode(清理脏数据)；更新所有子节点的排序数据xsdnode
      */
-    public void update(FixmLogicDto fixmLogicDto) {
-        String version = fixmLogicDto.getVersion();
-        String xsdnode = fixmLogicDto.getXsdnode();
-        String newName = fixmLogicDto.getNewName();
-        Boolean isnode = fixmLogicDto.getIsnode();
+    public void update(String version, FixmLogicVO fixmLogicVO) {
+        String xsdnode = fixmLogicVO.getXsdnode();
+        String newName = fixmLogicVO.getNewName();
+        Boolean isnode = fixmLogicVO.getIsnode();
         FixmProp fixmProp = FixmUtils.convert2fixmPropUpdate(xsdnode, null, newName);
-        BeanUtils.copyProperties(fixmProp, fixmLogicDto, "xsdnode", "newFatherXsdnode", "newName");
+        BeanUtils.copyProperties(fixmProp, fixmLogicVO);
         String fatherXsdnode = fixmProp.getFatherXsdnode();
         String fatherXsdnodePrefix = fixmProp.getFatherXsdnodePrefix();
         String xsdnodePrefix = fixmProp.getXsdnodePrefix();
@@ -383,7 +377,7 @@ public class FixmLogicServiceImpl implements FixmLogicService {
         List<FixmLogic> fixmLogics = fixmLogicRepository.findAllByVersionAndXsdnode(version, xsdnode);
         if (fixmLogics.isEmpty()) {
             // throw 节点数据不存在
-            log.error("[节点数据不存在]");
+            log.error("[节点数据不存在], xsdnode: {}", xsdnode);
             throw new BusinessException();
         }
         FixmLogic fixmLogic = fixmLogics.remove(0);
@@ -397,23 +391,23 @@ public class FixmLogicServiceImpl implements FixmLogicService {
             // (2.1).检测是否同名冲突
             this.validateName(version, fatherXsdnodePrefix, newName);
             // (2.2).调用fixmOrder更新节点排序数据接口save()。更新父节点排序数据
-            FixmOrderDto fixmOrderDto = this.buildLogic2fatherOrder(fixmLogicDto);
+            FixmOrderDto fixmOrderDto = this.buildLogic2fatherOrder(version, fixmLogicVO);
             log.info("[更新父节点排序数据], {}", fixmOrderDto);
             fixmOrderService.save(fixmOrderDto);
             // 更新节点名
-            fixmLogicDto.setXsdnode(newXsdnode);
+            fixmLogicVO.setXsdnode(newXsdnode);
         }
         // (3).更新节点其他属性
         // copy剔除testvalue，testvalue用于更新flight_info_test数据表。
-        BeanUtils.copyProperties(fixmLogicDto, fixmLogic, "id", "testvalue");
+        BeanUtils.copyProperties(fixmLogicVO, fixmLogic, "testvalue");
         fixmLogicRepository.save(fixmLogic);
         if (!fixmLogics.isEmpty()) {
             log.info("[清理FixmLogic脏数据], {}", fixmLogics);
             fixmLogicRepository.deleteAll(fixmLogics);
         }
         // 更新flight_info_test数据表
-        if (!StringUtils.isEmpty(fixmLogicDto.getSrcColumn())) {
-            this.updateFlightInfo(fixmLogicDto.getSrcColumn(), fixmLogicDto.getTestvalue());
+        if (!StringUtils.isEmpty(fixmLogicVO.getSrcColumn())) {
+            this.updateFlightInfo(fixmLogicVO.getSrcColumn(), fixmLogicVO.getTestvalue());
         }
     }
 
@@ -435,12 +429,11 @@ public class FixmLogicServiceImpl implements FixmLogicService {
     // 更新name接口(此时isnode传不传值都为null)
     @Override
     @Transactional
-    public void updateName(FixmLogicDto fixmLogicDto) {
-        String version = fixmLogicDto.getVersion();
-        String xsdnode = fixmLogicDto.getXsdnode();
-        String newName = fixmLogicDto.getNewName();
+    public void updateName(String version, FixmLogicVO fixmLogicVO) {
+        String xsdnode = fixmLogicVO.getXsdnode();
+        String newName = fixmLogicVO.getNewName();
         FixmProp fixmProp = FixmUtils.convert2fixmPropUpdate(xsdnode, null, newName);
-        BeanUtils.copyProperties(fixmProp, fixmLogicDto, "xsdnode", "newFatherXsdnode", "newName");
+        BeanUtils.copyProperties(fixmProp, fixmLogicVO);
         String fatherXsdnode = fixmProp.getFatherXsdnode();
         String fatherXsdnodePrefix = fixmProp.getFatherXsdnodePrefix();
         String xsdnodePrefix = fixmProp.getXsdnodePrefix();
@@ -451,7 +444,7 @@ public class FixmLogicServiceImpl implements FixmLogicService {
         List<FixmLogic> fixmLogics = fixmLogicRepository.findAllByVersionAndXsdnode(version, xsdnode);
         List<FixmLogic> childFixmLogics = fixmLogicRepository.findAllByVersionAndXsdnodeStartingWith(version, xsdnodePrefix);
         if (fixmLogics.isEmpty() && childFixmLogics.isEmpty()) {
-            log.error("[节点数据不存在]");
+            log.error("[节点数据不存在], xsdnode: {}, xsdnodePrefix: {}", xsdnode, xsdnodePrefix);
             throw new BusinessException();
         }
         if (newName != null && !newName.equals(name)) {
@@ -474,11 +467,11 @@ public class FixmLogicServiceImpl implements FixmLogicService {
                 fixmLogicRepository.saveAll(childFixmLogics);
             }
             // (4).更新节点及子节点排序数据xsdnode
-            FixmOrderDto fixmOrderDto = this.buildLogic2nameOrder(fixmLogicDto);
+            FixmOrderDto fixmOrderDto = this.buildLogic2nameOrder(version, fixmLogicVO);
             log.info("[更新节点及子节点排序数据], {}", fixmOrderDto);
             fixmOrderService.updateXsdnode(fixmOrderDto);
             // (5).更新父节点排序数据
-            FixmOrderDto fatherFixmOrderDto = this.buildLogic2fatherOrder(fixmLogicDto);
+            FixmOrderDto fatherFixmOrderDto = this.buildLogic2fatherOrder(version, fixmLogicVO);
             log.info("[更新父节点排序数据], {}", fatherFixmOrderDto);
             fixmOrderService.save(fatherFixmOrderDto);
         }
@@ -487,14 +480,13 @@ public class FixmLogicServiceImpl implements FixmLogicService {
     // 更新fatherXsdnode接口
     @Override
     @Transactional
-    public FixmLogicDto updateFatherXsdnode(FixmLogicDto fixmLogicDto) {
-        String version = fixmLogicDto.getVersion();
-        String xsdnode = fixmLogicDto.getXsdnode();
-        String newFatherXsdnode = fixmLogicDto.getNewFatherXsdnode();
+    public void updateFatherXsdnode(String version, FixmLogicVO fixmLogicVO) {
+        String xsdnode = fixmLogicVO.getXsdnode();
+        String newFatherXsdnode = fixmLogicVO.getNewFatherXsdnode();
         // 删除空目录节点
-        String deleteXsdnode = fixmLogicDto.getDeleteXsdnode();
+        String deleteXsdnode = fixmLogicVO.getDeleteXsdnode();
         FixmProp fixmProp = FixmUtils.convert2fixmPropUpdate(xsdnode, newFatherXsdnode, null);
-        BeanUtils.copyProperties(fixmProp, fixmLogicDto, "xsdnode", "newFatherXsdnode", "newName");
+        BeanUtils.copyProperties(fixmProp, fixmLogicVO);
         String fatherXsdnode = fixmProp.getFatherXsdnode();
         String xsdnodePrefix = fixmProp.getXsdnodePrefix();
         String name = fixmProp.getName();
@@ -527,12 +519,12 @@ public class FixmLogicServiceImpl implements FixmLogicService {
                 fixmLogicRepository.saveAll(childFixmLogics);
             }
             // (4).更新节点及子节点排序数据xsdnode
-            FixmOrderDto fixmOrderDto = this.buildLogic2drawOrder(fixmLogicDto);
+            FixmOrderDto fixmOrderDto = this.buildLogic2drawOrder(version, fixmLogicVO);
             log.info("[更新节点及子节点排序数据], {}", fixmOrderDto);
             fixmOrderService.updateXsdnode(fixmOrderDto);
             // (5).更新父节点排序数据order序列  和外层(3)合并逻辑
             // (6).更新新父节点排序数据order序列
-            FixmOrderDto newFatherfixmOrderDto = this.buildLogic2newFatherOrder(fixmLogicDto);
+            FixmOrderDto newFatherfixmOrderDto = this.buildLogic2newFatherOrder(version, fixmLogicVO);
             log.info("[更新新父节点排序数据], {}", newFatherfixmOrderDto);
             fixmOrderService.save(newFatherfixmOrderDto);
             // 删除空目录节点
@@ -558,16 +550,16 @@ public class FixmLogicServiceImpl implements FixmLogicService {
                 if (deleteXsdnode.contains(SPLIT_SIGN)) {
                     blankFatherXsdnode = deleteXsdnode.substring(0, deleteXsdnode.lastIndexOf(SPLIT_SIGN));
                 }
-                fixmLogicDto.setFatherXsdnode(blankFatherXsdnode);
+                fixmLogicVO.setFatherXsdnode(blankFatherXsdnode);
             }
         }
         // (3).更新排序(同级拖拽)
-        FixmOrderDto fatherFixmOrderDto = this.buildLogic2fatherOrder(fixmLogicDto);
+        FixmOrderDto fatherFixmOrderDto = this.buildLogic2fatherOrder(version, fixmLogicVO);
         log.info("[更新父节点排序数据], {}", fatherFixmOrderDto);
         fixmOrderService.save(fatherFixmOrderDto);
         // 拖拽若是保留空父节点，则在这里返回
         // return null;
-        return this.saveFather(fixmLogicDto);
+        this.saveFather(version, fixmLogicVO);
     }
 
     @Override
@@ -579,12 +571,11 @@ public class FixmLogicServiceImpl implements FixmLogicService {
      * 1.对移除位置进行排序（父节点排序数据更新node/property序列）
      * 2.删除当前节点排序；删除当前节点所有子节点排序
      */
-    public FixmLogicDto delete(FixmLogicDto fixmLogicDto) {
-        String version = fixmLogicDto.getVersion();
+    public void delete(String version, FixmLogicVO fixmLogicVO) {
         // 节点
-        String xsdnode = fixmLogicDto.getXsdnode();
+        String xsdnode = fixmLogicVO.getXsdnode();
         FixmProp fixmProp = FixmUtils.convert2fixmPropUpdate(xsdnode, null, null);
-        BeanUtils.copyProperties(fixmProp, fixmLogicDto, "xsdnode", "newFatherXsdnode", "newName");
+        BeanUtils.copyProperties(fixmProp, fixmLogicVO);
         // 父节点
         String fatherXsdnode = fixmProp.getFatherXsdnode();
         // 父节点前缀
@@ -611,14 +602,14 @@ public class FixmLogicServiceImpl implements FixmLogicService {
         log.info("[删除节点及子节点排序数据]");
         fixmOrderService.del(version, xsdnode);
         // 2.更新父节点排序
-        FixmOrderDto fatherFixmOrderDto = this.buildLogic2fatherOrder(fixmLogicDto);
+        FixmOrderDto fatherFixmOrderDto = this.buildLogic2fatherOrder(version, fixmLogicVO);
         log.info("[更新父节点排序数据], {}", fatherFixmOrderDto);
         fixmOrderService.save(fatherFixmOrderDto);
         // 3.生成新节点
         // 同时满足，则考虑将父节点转换为数据项。
         // 1.同级节点个数为0[剔除该条件，通过前端判断删除，不管后端逻辑]、
         // 2.父节点不为空（空代表根节点）
-        return this.saveFather(fixmLogicDto);
+        this.saveFather(version, fixmLogicVO);
     }
 
     @Override
@@ -654,10 +645,151 @@ public class FixmLogicServiceImpl implements FixmLogicService {
         fixmOrderService.deleteByVersion(version);
     }
 
-    private FixmLogicDto saveFather(FixmLogicDto fixmLogicDto) {
-        String fatherXsdnode = fixmLogicDto.getFatherXsdnode();
-        String version = fixmLogicDto.getVersion();
-        Boolean saveFather = fixmLogicDto.getSaveFather();
+    @Override
+    public List<FixmLogicVersion> findFixmSubversions() {
+        List<FixmLogicVersion> versionSubversions = new ArrayList<>();
+        List<FixmLogic> fixmLogicList = fixmLogicRepository.findAll();
+        // 方式一：
+        // Map<String, List<FixmLogic>> versionFixmLogicList = fixmLogicList.stream().collect(Collectors.groupingBy(FixmLogic::getVersion));
+        // 方式二：
+        Map<String, List<FixmLogic>> versionFixmLogicList = new HashMap<>();
+        // 记录版本先后顺序
+        List<String> versionOrder = new ArrayList<>();
+        fixmLogicList.forEach(fixmLogic -> {
+            String version = fixmLogic.getVersion();
+            List<FixmLogic> fixmLogicList1 = versionFixmLogicList.get(version);
+            if (fixmLogicList1 == null) {
+                fixmLogicList1 = new ArrayList<>();
+                versionFixmLogicList.put(version, fixmLogicList1);
+                versionOrder.add(version);
+            }
+            fixmLogicList1.add(fixmLogic);
+        });
+        versionFixmLogicList.keySet().forEach(version -> {
+            FixmLogicVersion fixmLogicVersion = new FixmLogicVersion();
+            fixmLogicVersion.setName(version);
+            List<FixmLogic> fixmLogics = versionFixmLogicList.get(version);
+            Set<String> subversions = fixmLogics.stream()
+                    .map(FixmLogic::getChildversion)
+                    .filter(StringUtils::hasText)
+                    .flatMap(subversionStr -> Arrays.stream(StringUtils.tokenizeToStringArray(subversionStr, ",")))
+                    .collect(Collectors.toSet());
+            if (!subversions.isEmpty()) {
+                fixmLogicVersion.setSubversions(subversions);
+            }
+            versionSubversions.add(fixmLogicVersion);
+        });
+        // 排序版本信息[选择排序]
+        Map<String, Integer> integerMap = versionSubversions.stream().collect(Collectors.toMap(FixmLogicVersion::getName, versionSubversions::indexOf));
+        for (int index = 0; index < versionOrder.size(); index++) {
+            String version = versionOrder.get(index);
+            Integer i = integerMap.get(version);
+            if (i == index) {
+                continue;
+            }
+            String tempVersion = versionSubversions.get(index).getName();
+            Collections.swap(versionSubversions, i, index);
+            integerMap.put(version, index);
+            integerMap.put(tempVersion, i);
+        }
+        return versionSubversions;
+    }
+
+    /**
+     * 更新子版本(用户勾选子版本节点)
+     * 1.传递大版本、子版本、用户勾选的xsdnodes序列(xsdnode:树节点全路径)
+     *
+     * @param version
+     * @param subversion
+     * @param chkXsdnodes
+     * @param cancelChkXsdnodes
+     */
+    @Transactional
+    @Override
+    public void updateSubversion(String version, String subversion, List<String> chkXsdnodes, List<String> cancelChkXsdnodes) {
+        List<FixmLogic> fixmLogicList = new ArrayList<>();
+        if (chkXsdnodes != null && !chkXsdnodes.isEmpty()) {
+            // 勾选节点
+            List<FixmLogic> chkFixmLogics = fixmLogicRepository.findAllByVersionAndXsdnodeIn(version, chkXsdnodes);
+            if (!chkFixmLogics.isEmpty()) {
+                chkFixmLogics.forEach(fixmLogic -> {
+                    // 数据库中子版本集合(数据库查询结果varchar转List => null,""差异？ 使用tokenizeToStringArray方法 null,""都会会转为空list)
+                    String subversionStr = fixmLogic.getChildversion();
+                    Set<String> subversions = new LinkedHashSet<>();
+                    if (StringUtils.hasText(subversionStr)) {
+                        subversions = new LinkedHashSet<>(Arrays.asList(StringUtils.tokenizeToStringArray(subversionStr, ",")));
+                    }
+                    if (!subversions.contains(subversion)) {
+                        // 勾选节点 数据条目不包含当前子版本，则需要添加子版本
+                        subversions.add(subversion);
+                        fixmLogic.setChildversion(StringUtils.collectionToCommaDelimitedString(subversions));
+                        fixmLogicList.add(fixmLogic);
+                    }
+                });
+            }
+        }
+        if (cancelChkXsdnodes != null && !cancelChkXsdnodes.isEmpty()) {
+            // 取消勾选节点
+            List<FixmLogic> cancelChkFixmlogics = fixmLogicRepository.findAllByVersionAndXsdnodeIn(version, cancelChkXsdnodes);
+            if (!cancelChkFixmlogics.isEmpty()) {
+                cancelChkFixmlogics.forEach(fixmLogic -> {
+                    String subversionStr = fixmLogic.getChildversion();
+                    if (StringUtils.hasText(subversionStr)) {
+                        // 子节点字段存在数据
+                        Set<String> subversions = new LinkedHashSet<>(Arrays.asList(StringUtils.tokenizeToStringArray(subversionStr, ",")));
+                        if (subversions.contains(subversion)) {
+                            // 取消勾选 数据条目包含当前子版本，则需要移除子版本
+                            subversions.remove(subversion);
+                            fixmLogic.setChildversion(StringUtils.collectionToCommaDelimitedString(subversions));
+                            fixmLogicList.add(fixmLogic);
+                        }
+                    }
+                });
+            }
+        }
+        if (!fixmLogicList.isEmpty()) {
+            log.info("更新数据: {}", fixmLogicList);
+            fixmLogicRepository.saveAll(fixmLogicList);
+        }
+    }
+
+    /**
+     * 删除子版本
+     * 1.大版本、子版本
+     *
+     * @param version
+     * @param subversion
+     */
+    @Transactional
+    @Override
+    public void deleteSubversion(String version, String subversion) {
+        List<FixmLogic> allByVersion = fixmLogicRepository.findAllByVersion(version);
+        if (!allByVersion.isEmpty()) {
+            // 记录更新节点数据
+            List<FixmLogic> fixmLogicList = new ArrayList<>();
+            allByVersion.forEach(fixmLogic -> {
+                // 数据库中子版本集合(数据库查询结果varchar转List => null,""差异？)
+                String subversionStr = fixmLogic.getChildversion();
+                if (StringUtils.hasText(subversionStr)) {
+                    Set<String> subversions = new LinkedHashSet<>(Arrays.asList(StringUtils.tokenizeToStringArray(subversionStr, ",")));
+                    if (subversions.contains(subversion)) {
+                        // 取消勾选 数据条目包含当前子版本，则需要移除子版本
+                        subversions.remove(subversion);
+                        fixmLogic.setChildversion(StringUtils.collectionToCommaDelimitedString(subversions));
+                        fixmLogicList.add(fixmLogic);
+                    }
+                }
+            });
+            if (!fixmLogicList.isEmpty()) {
+                log.info("数据更新：{}", fixmLogicList);
+                fixmLogicRepository.saveAll(fixmLogicList);
+            }
+        }
+    }
+
+    private void saveFather(String version, FixmLogicVO fixmLogicVO) {
+        String fatherXsdnode = fixmLogicVO.getFatherXsdnode();
+        Boolean saveFather = fixmLogicVO.getSaveFather();
         if (saveFather && StringUtils.hasText(fatherXsdnode)) {
             log.info("[保存父节点数据]");
             List<FixmLogic> fatherFixmLogics = fixmLogicRepository.findAllByVersionAndXsdnode(version, fatherXsdnode);
@@ -682,56 +814,54 @@ public class FixmLogicServiceImpl implements FixmLogicService {
                 fatherFixmLogic = fatherFixmLogics.get(0);
                 log.info("[父节点数据已存在], {}", fatherFixmLogic);
             }
-            return this.convert2fixmLogicDto(fatherFixmLogic);
         }
-        return null;
     }
 
-    private FixmOrderDto buildLogic2fatherOrder(FixmLogicDto fixmLogicDto) {
+    private FixmOrderDto buildLogic2fatherOrder(String version, FixmLogicVO fixmLogicVO) {
         FixmOrderDto fixmOrderDto = new FixmOrderDto();
-        fixmOrderDto.setVersion(fixmLogicDto.getVersion());
+        fixmOrderDto.setVersion(version);
         // isvalid 前端暂时没变更需求
         fixmOrderDto.setIsvalid(true);
-        fixmOrderDto.setXsdnode(fixmLogicDto.getFatherXsdnode());
-        fixmOrderDto.setNodeOrder(fixmLogicDto.getNodeOrder());
-        fixmOrderDto.setPropertyOrder(fixmLogicDto.getPropertyOrder());
+        fixmOrderDto.setXsdnode(fixmLogicVO.getFatherXsdnode());
+        fixmOrderDto.setNodeOrder(fixmLogicVO.getNodeOrder());
+        fixmOrderDto.setPropertyOrder(fixmLogicVO.getPropertyOrder());
         return fixmOrderDto;
     }
 
-    private FixmOrderDto buildLogic2newFatherOrder(FixmLogicDto fixmLogicDto) {
+    private FixmOrderDto buildLogic2newFatherOrder(String version, FixmLogicVO fixmLogicVO) {
         FixmOrderDto fixmOrderDto = new FixmOrderDto();
-        fixmOrderDto.setVersion(fixmLogicDto.getVersion());
+        fixmOrderDto.setVersion(version);
         // isvalid 前端暂时没变更需求
         fixmOrderDto.setIsvalid(true);
-        fixmOrderDto.setXsdnode(fixmLogicDto.getNewFatherXsdnode());
-        fixmOrderDto.setNodeOrder(fixmLogicDto.getNewNodeOrder());
-        fixmOrderDto.setPropertyOrder(fixmLogicDto.getNewPropertyOrder());
+        fixmOrderDto.setXsdnode(fixmLogicVO.getNewFatherXsdnode());
+        fixmOrderDto.setNodeOrder(fixmLogicVO.getNewNodeOrder());
+        fixmOrderDto.setPropertyOrder(fixmLogicVO.getNewPropertyOrder());
         return fixmOrderDto;
     }
 
-    private FixmOrderDto buildLogic2nameOrder(FixmLogicDto fixmLogicDto) {
+    private FixmOrderDto buildLogic2nameOrder(String version, FixmLogicVO fixmLogicVO) {
         FixmOrderDto fixmOrderDto = new FixmOrderDto();
-        fixmOrderDto.setVersion(fixmLogicDto.getVersion());
+        fixmOrderDto.setVersion(version);
         // isvalid 前端暂时没变更需求
         fixmOrderDto.setIsvalid(true);
-        fixmOrderDto.setXsdnode(fixmLogicDto.getXsdnode());
-        fixmOrderDto.setNodeOrder(fixmLogicDto.getNodeOrder());
-        fixmOrderDto.setPropertyOrder(fixmLogicDto.getPropertyOrder());
+        fixmOrderDto.setXsdnode(fixmLogicVO.getXsdnode());
+        fixmOrderDto.setNodeOrder(fixmLogicVO.getNodeOrder());
+        fixmOrderDto.setPropertyOrder(fixmLogicVO.getPropertyOrder());
         // 更名 newFatherXsdnode为null
         fixmOrderDto.setNewFatherXsdnode(null);
-        fixmOrderDto.setNewName(fixmLogicDto.getNewName());
+        fixmOrderDto.setNewName(fixmLogicVO.getNewName());
         return fixmOrderDto;
     }
 
-    private FixmOrderDto buildLogic2drawOrder(FixmLogicDto fixmLogicDto) {
+    private FixmOrderDto buildLogic2drawOrder(String version, FixmLogicVO fixmLogicVO) {
         FixmOrderDto fixmOrderDto = new FixmOrderDto();
-        fixmOrderDto.setVersion(fixmLogicDto.getVersion());
+        fixmOrderDto.setVersion(version);
         // isvalid 前端暂时没变更需求
         fixmOrderDto.setIsvalid(true);
-        fixmOrderDto.setXsdnode(fixmLogicDto.getXsdnode());
-        fixmOrderDto.setNodeOrder(fixmLogicDto.getNodeOrder());
-        fixmOrderDto.setPropertyOrder(fixmLogicDto.getPropertyOrder());
-        fixmOrderDto.setNewFatherXsdnode(fixmLogicDto.getNewFatherXsdnode());
+        fixmOrderDto.setXsdnode(fixmLogicVO.getXsdnode());
+        fixmOrderDto.setNodeOrder(fixmLogicVO.getNodeOrder());
+        fixmOrderDto.setPropertyOrder(fixmLogicVO.getPropertyOrder());
+        fixmOrderDto.setNewFatherXsdnode(fixmLogicVO.getNewFatherXsdnode());
         // 拖拽 newName为null
         fixmOrderDto.setNewName(null);
         return fixmOrderDto;
@@ -741,7 +871,7 @@ public class FixmLogicServiceImpl implements FixmLogicService {
         String xsdnode = fatherXsdnodePrefix.concat(name);
         List<FixmLogic> fixmLogics = fixmLogicRepository.findAllByVersionAndXsdnode(version, xsdnode);
         if (!fixmLogics.isEmpty()) {
-            log.error("[数据不一致] [节点数据已存在], {}", fixmLogics);
+            log.error("[节点数据已存在], {}", fixmLogics);
             throw new BusinessException();
         }
         List<FixmLogic> brothFixmLogics = fixmLogicRepository.findAllByVersionAndXsdnodeStartingWith(version, fatherXsdnodePrefix);
@@ -759,7 +889,7 @@ public class FixmLogicServiceImpl implements FixmLogicService {
             2.2brothXsdnode.concat(SPLIT_SIGN) 变更为 brothXsdnode   两者相同情况不在此逻辑中。
             */
             if (brothXsdnode.concat(SPLIT_SIGN).startsWith(xsdnode.concat(SPLIT_SIGN))) {
-                log.error("[数据不一致] [同级节点不能同名], {}", fixmLogic);
+                log.error("[同级节点不能同名], {}", fixmLogic);
                 throw new BusinessException();
             }
         }
@@ -782,6 +912,7 @@ public class FixmLogicServiceImpl implements FixmLogicService {
         return xmlkey;
     }
 
+    @Deprecated
     private FixmLogicDto convert2fixmLogicDto(FixmLogic fixmLogic) {
         FixmLogicDto fixmLogicDto = new FixmLogicDto();
         BeanUtils.copyProperties(fixmLogic, fixmLogicDto);

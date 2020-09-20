@@ -1,7 +1,8 @@
 package cn.adcc.client.controller;
 
-import cn.adcc.client.DTO.FixmLogicDto;
+import cn.adcc.client.VO.FixmLogicVO;
 import cn.adcc.client.VO.Result;
+import cn.adcc.client.VO.SubversionCheckVO;
 import cn.adcc.client.service.FixmLogicService;
 import cn.adcc.client.service.ValidateService;
 import cn.adcc.client.utils.ResultUtil;
@@ -31,47 +32,41 @@ public class FixmLogicController {
     }
 
     @PostMapping
-    public Result add(@PathVariable("version") String version, @Validated @RequestBody FixmLogicDto fixmLogicDto) {
-        fixmLogicDto.setVersion(version);
-        log.info("[添加FixmLogic节点], {}", fixmLogicDto);
-        FixmLogicDto childFixmLogicDto = fixmLogicService.add(fixmLogicDto);
-        return ResultUtil.success(childFixmLogicDto);
+    public Result add(@PathVariable("version") String version, @Validated @RequestBody FixmLogicVO fixmLogicVO) {
+        log.info("[添加FixmLogic节点], 版本:{} => {}", version, fixmLogicVO);
+        fixmLogicService.add(version, fixmLogicVO);
+        return ResultUtil.success();
     }
 
     @PutMapping
-    public Result update(@PathVariable("version") String version, @RequestBody FixmLogicDto fixmLogicDto) {
-        fixmLogicDto.setVersion(version);
-        log.info("[更新FixmLogic叶子节点], {}", fixmLogicDto);
-        fixmLogicService.update(fixmLogicDto);
+    public Result update(@PathVariable("version") String version, @RequestBody FixmLogicVO fixmLogicVO) {
+        log.info("[更新FixmLogic叶子节点], 版本:{} => {}", version, fixmLogicVO);
+        fixmLogicService.update(version, fixmLogicVO);
         return ResultUtil.success();
     }
 
     @PutMapping("/name")
-    public Result updateName(@PathVariable("version") String version, @RequestBody FixmLogicDto fixmLogicDto) {
-        fixmLogicDto.setVersion(version);
-        log.info("[更新FixmLogic目录节点], {}", fixmLogicDto);
-        fixmLogicService.updateName(fixmLogicDto);
+    public Result updateName(@PathVariable("version") String version, @RequestBody FixmLogicVO fixmLogicVO) {
+        log.info("[更新FixmLogic目录节点], 版本:{} => {}", version, fixmLogicVO);
+        fixmLogicService.updateName(version, fixmLogicVO);
         return ResultUtil.success();
     }
 
     @PutMapping("/draw")
-    public Result draw(@PathVariable("version") String version, @RequestBody FixmLogicDto fixmLogicDto) {
-        fixmLogicDto.setVersion(version);
-        log.info("[拖拽FixmLogic节点], {}", fixmLogicDto);
-        // 返回父节点fixmLogicDto
-        FixmLogicDto fatherFixmLogicDto = fixmLogicService.updateFatherXsdnode(fixmLogicDto);
-        return ResultUtil.success(fatherFixmLogicDto);
+    public Result draw(@PathVariable("version") String version, @RequestBody FixmLogicVO fixmLogicVO) {
+        log.info("[拖拽FixmLogic节点], 版本:{} => {}", version, fixmLogicVO);
+        fixmLogicService.updateFatherXsdnode(version, fixmLogicVO);
+        return ResultUtil.success();
     }
 
     @DeleteMapping
-    public Result delete(@PathVariable("version") String version, @RequestBody FixmLogicDto fixmLogicDto) {
-        fixmLogicDto.setVersion(version);
-        log.info("[删除FixmLogic节点], {}", fixmLogicDto);
-        // 返回父节点fixmLogicDto
-        FixmLogicDto fatherFixmLogicDto = fixmLogicService.delete(fixmLogicDto);
-        return ResultUtil.success(fatherFixmLogicDto);
+    public Result delete(@PathVariable("version") String version, @RequestBody FixmLogicVO fixmLogicVO) {
+        log.info("[删除FixmLogic节点], 版本:{} => {}", version, fixmLogicVO);
+        fixmLogicService.delete(version, fixmLogicVO);
+        return ResultUtil.success();
     }
 
+    /*这两个接口移动到FixmController ，原因：和version没有关系*/
     @GetMapping("/keys")
     public Result findKeys(@PathVariable("version") String version) {
         return ResultUtil.success(fixmLogicService.findFlightInfoColumnsDesc());
@@ -89,6 +84,7 @@ public class FixmLogicController {
      */
     @GetMapping("/validate")
     public Result validateFixm(@PathVariable("version") String version) {
+        log.info("[验证Fixm数据], 版本:{}", version);
         validateService.validateFixm(version);
         return ResultUtil.success();
     }
@@ -140,6 +136,7 @@ public class FixmLogicController {
      */
     @GetMapping("/validateFiles")
     public Result validateFiles(@PathVariable("version") String version) {
+        log.info("[获取Fixm验证文件目录], 版本:{}", version);
         return ResultUtil.success(validateService.getValidateFiles(version));
     }
 
@@ -151,7 +148,7 @@ public class FixmLogicController {
      */
     @PostMapping("/updateValidateMap")
     public Result updateValidateMap(@PathVariable("version") String version, @RequestBody List<String> filePaths) {
-        log.info("[更新Fixm版本验证文件映射关系] {}->{}", version, filePaths);
+        log.info("[更新Fixm验证文件映射关系], 版本:{} => {}", version, filePaths);
         validateService.updateValidateMap(version, filePaths);
         return ResultUtil.success();
     }
@@ -163,6 +160,26 @@ public class FixmLogicController {
      */
     @GetMapping("/getValidateMapValue")
     public Result getValidateMapValue(@PathVariable("version") String version) {
+        log.info("[获取Fixm验证文件映射关系], 版本:{}", version);
         return ResultUtil.success(validateService.getValidateMap(version));
+    }
+
+    @PostMapping("/subversion/{subversion}")
+    public Result updateSubversion(@PathVariable("version") String version,
+                                   @PathVariable("subversion") String subversion,
+                                   @RequestBody SubversionCheckVO subversionCheckVO) {
+        List<String> chkXsdnodes = subversionCheckVO.getChkXsdnodes();
+        List<String> cancelChkXsdnodes = subversionCheckVO.getCancelChkXsdnodes();
+        log.info("[编辑子版本], 版本:{} => 子版本:{}, 勾选节点:{}，取消勾选:{}", version, subversion, chkXsdnodes, cancelChkXsdnodes);
+        fixmLogicService.updateSubversion(version, subversion, chkXsdnodes, cancelChkXsdnodes);
+        return ResultUtil.success();
+    }
+
+    @DeleteMapping("/subversion/{subversion}")
+    public Result deleteSubversion(@PathVariable("version") String version,
+                                   @PathVariable("subversion") String subversion) {
+        log.info("[删除子版本], 版本:{} => 子版本:{}", version, subversion);
+        fixmLogicService.deleteSubversion(version, subversion);
+        return ResultUtil.success();
     }
 }

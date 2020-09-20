@@ -29,6 +29,7 @@ public class FixmOrderServiceImpl implements FixmOrderService {
     public Map<String, FixmOrder> list(String version) {
         Map<String, FixmOrder> fixmOrderMap = new HashMap<>();
         List<FixmOrder> fixmOrderList = fixmOrderRepository.findAllByVersion(version);
+        // 【兼容数据逻辑】，查询数据有重复
         for (FixmOrder fixmOrder : fixmOrderList) {
             String xsdnode = fixmOrder.getXsdnode();
             // 有重复值时 取第一个数据

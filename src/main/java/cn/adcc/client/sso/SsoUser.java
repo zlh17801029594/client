@@ -19,10 +19,17 @@ public class SsoUser implements Serializable {
 
     private int status;
     private int sensitiveLevel;
+    private String alias;
 
+    public String getAlias() {
+        return alias;
+    }
 
+    public void setAlias(String alias) {
+        this.alias = alias;
+    }
 
-    // set get
+    // setCookie get
     public String getUserid() {
         return userid;
     }

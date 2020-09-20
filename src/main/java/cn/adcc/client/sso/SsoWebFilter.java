@@ -77,6 +77,7 @@ public class SsoWebFilter extends HttpServlet implements Filter {
                 sessionid = req.getParameter(Constant.SSO_SESSIONID);
             }
             if (SsoUtils.isEmpty(sessionid)) {
+                logger.debug("[登陆失败] [用户未携带sessionid]");
                 res.setContentType("application/json;charset=UTF-8");
                 res.getWriter().write(objectMapper.writeValueAsString(ResultUtil.error(ResultEnum.AUTHENTICATION_ERROR.getCode(), "请求中未携带sessionid，请登录")));
                 return;
@@ -99,7 +100,7 @@ public class SsoWebFilter extends HttpServlet implements Filter {
                     ssoUser.setSensitiveLevel(0);
                 }*/
             } catch (Exception e) {
-                logger.error("exception in loginCheck", e);
+                logger.debug("[登录失败] [sessionid验证失败]", e);
                 res.setContentType("application/json;charset=UTF-8");
                 res.getWriter().write(objectMapper.writeValueAsString(ResultUtil.error(ResultEnum.LOGIN_SERVER_ERROR.getCode(), "认证服务器异常，请稍后重试")));
                 return;
@@ -107,10 +108,13 @@ public class SsoWebFilter extends HttpServlet implements Filter {
 
             // valid login fail
             if (ssoUser == null) {
+                logger.debug("[登陆失败] [sessionid无效]: {}", sessionid);
                 res.setContentType("application/json;charset=UTF-8");
                 res.getWriter().write(objectMapper.writeValueAsString(ResultUtil.error(ResultEnum.AUTHENTICATION_ERROR.getCode(), "sessionid无效,请重新登录")));
                 return;
             }
+
+            logger.debug("[登录成功], sessionid: {}", sessionid);
 
             // ser sso user
             request.setAttribute(Constant.SSO_USER, ssoUser);

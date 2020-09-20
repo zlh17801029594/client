@@ -8,16 +8,26 @@ import org.springframework.util.StringUtils;
 public class FixmUtils {
     public static final String SPLIT_SIGN = "->";
 
+    /**
+     * fatherXsdnode 为空白字符串时置为''
+     * @param fatherXsdnode
+     * @param name
+     * @return
+     */
     public static FixmProp convert2fixmPropAdd(String fatherXsdnode, String name) {
         FixmProp fixmProp = new FixmProp();
         // 父节点前缀
         String fatherXsdnodePrefix = "";
         if (StringUtils.hasText(fatherXsdnode)) {
             fatherXsdnodePrefix = fatherXsdnode.concat(SPLIT_SIGN);
+        } else {
+            fatherXsdnode = "";
         }
+        fixmProp.setFatherXsdnode(fatherXsdnode);
         fixmProp.setFatherXsdnodePrefix(fatherXsdnodePrefix);
         // 节点
         String xsdnode = fatherXsdnodePrefix.concat(name);
+        fixmProp.setName(name);
         fixmProp.setXsdnode(xsdnode);
         // 节点前缀
         String xsdnodePrefix = xsdnode.concat(SPLIT_SIGN);
@@ -50,6 +60,7 @@ public class FixmUtils {
             fatherXsdnode = xsdnode.substring(0, xsdnode.lastIndexOf(SPLIT_SIGN));
             fatherXsdnodePrefix = fatherXsdnode.concat(SPLIT_SIGN);
         }
+        fixmProp.setXsdnode(xsdnode);
         fixmProp.setFatherXsdnode(fatherXsdnode);
         fixmProp.setFatherXsdnodePrefix(fatherXsdnodePrefix);
         // 节点前缀
@@ -68,17 +79,20 @@ public class FixmUtils {
             newFatherXsdnodePrefix = "";
             if (StringUtils.hasText(newFatherXsdnode)) {
                 newFatherXsdnodePrefix = newFatherXsdnode.concat(SPLIT_SIGN);
+            } else {
+                newFatherXsdnode = "";
             }
-            // fixmProp.setNewFatherXsdnode(newFatherXsdnode);
+        } else {
+            newFatherXsdnode = fatherXsdnode;
         }
+        fixmProp.setNewFatherXsdnode(newFatherXsdnode);
         fixmProp.setNewFatherXsdnodePrefix(newFatherXsdnodePrefix);
         // 【新节点名】（更新节点名）为null表示不进行更新节点名操作；不可以为""、Blank
         // String newName = fixmLogicDto.getNewName();
-        if (newName != null) {
-            // fixmProp.setNewName(newName);
-        } else {
+        if (newName == null) {
             newName = name;
         }
+        fixmProp.setNewName(newName);
         // 新节点
         String newXsdnode = newFatherXsdnodePrefix.concat(newName);
         fixmProp.setNewXsdnode(newXsdnode);

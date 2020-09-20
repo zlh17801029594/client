@@ -1,6 +1,7 @@
 package cn.adcc.client.repository;
 
 import cn.adcc.client.DO.Api;
+import org.springframework.data.jpa.repository.EntityGraph;
 import org.springframework.data.jpa.repository.JpaRepository;
 
 import java.util.List;
@@ -65,6 +66,7 @@ public interface ApiRepository extends JpaRepository<Api, Long> {
     List<Api> findByTypeTrueAndPidAndStatusAndSensitiveNumLessThanEqualOrderByOrderNum(Long pid, Integer status, Integer sensitiveNum);
 
     /*查询所有用户可申请接口（只查接口）*/
+    @EntityGraph(value = "Api.Graph")
     List<Api> findByTypeTrueAndStatusAndSensitiveNumLessThanEqual(Integer status, Integer sens);
 
     /**
